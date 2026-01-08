@@ -49,9 +49,9 @@ def extract_notes(mid: mido.MidiFile) -> List[NoteEvent]:
     Parses a MIDI file and returns a list of NoteEvents.
     """
     notes = []
-    ongoing = {}  # key: pitch, value: (start_tick, velocity)
 
     for track in mid.tracks:
+        ongoing = {}  # key: pitch, value: (start_tick, velocity)
         tick = 0
         for msg in track:
             tick += msg.time
