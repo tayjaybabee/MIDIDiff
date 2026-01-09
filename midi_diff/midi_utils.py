@@ -65,6 +65,8 @@ def extract_notes(mid: mido.MidiFile) -> List[NoteEvent]:
                     duration = tick - start
                     notes.append(NoteEvent(msg.note, start, duration, vel))
 
+    # Sort by start time to maintain consistent ordering across tracks
+    notes.sort(key=lambda note: note.start)
     return notes
 
 def notes_to_midi(notes: List[NoteEvent], ticks_per_beat=480) -> mido.MidiFile:
