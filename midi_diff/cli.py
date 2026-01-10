@@ -1,6 +1,4 @@
 """
-
-
 Author: 
     Inspyre Softworks
 
@@ -38,4 +36,7 @@ def cli() -> None:
 
 if __name__ == "__main__":
     cli()
+
+
+__all__ = ["cli"]
 
