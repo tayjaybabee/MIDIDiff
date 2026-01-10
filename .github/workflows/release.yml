@@ -1,0 +1,130 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'pyproject.toml'
+
+permissions:
+  contents: write
+  packages: write
+  id-token: write
+
+jobs:
+  check-version-change:
+    runs-on: ubuntu-latest
+    outputs:
+      version_changed: ${{ steps.check.outputs.changed }}
+      current_version: ${{ steps.get_version.outputs.version }}
+      is_prerelease: ${{ steps.check_prerelease.outputs.is_prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.8.0
+          virtualenvs-create: false
+      
+      - name: Get current version
+        id: get_version
+        run: |
+          VERSION=$(poetry version --short)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
+      
+      - name: Check if version changed
+        id: check
+        run: |
+          # Check if version line in pyproject.toml was modified
+          # Looks for lines starting with +/- and containing "version ="
+          git diff HEAD^ HEAD -- pyproject.toml > version_diff.txt
+          if grep -qE "^[+-]version[[:space:]]*=" version_diff.txt; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Version has changed"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "Version has not changed"
+          fi
+      
+      - name: Check if pre-release
+        id: check_prerelease
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          # PEP 440 pre-release detection:
+          # Matches versions ending with: dev, alpha, beta, rc (with optional number)
+          # or a[N]/b[N] where N is a digit sequence
+          # Supports separators: dot (.), hyphen (-), or none
+          # Examples: 1.0.0.dev1, 1.0.0-alpha, 1.0.0beta2, 1.0.0rc1, 1.0.0a1, 1.0.0b2
+          if echo "$VERSION" | grep -qE '(\.|\-)?(dev|alpha|beta|rc)([0-9]+)?$|(\.|\-)?[ab][0-9]+$'; then
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+            echo "This is a pre-release version"
+          else
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+            echo "This is a stable release version"
+          fi
+
+  build-and-release:
+    needs: check-version-change
+    if: needs.check-version-change.outputs.version_changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.8.0
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      
+      - name: Install dependencies
+        run: poetry install --no-interaction
+      
+      - name: Build package
+        run: poetry build
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.check-version-change.outputs.current_version }}
+          name: Release v${{ needs.check-version-change.outputs.current_version }}
+          body: |
+            Release version ${{ needs.check-version-change.outputs.current_version }}
+            
+            **Type:** ${{ needs.check-version-change.outputs.is_prerelease == 'true' && 'Pre-release' || 'Stable Release' }}
+          draft: false
+          prerelease: ${{ needs.check-version-change.outputs.is_prerelease == 'true' }}
+          files: |
+            dist/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Publish to PyPI
+        if: needs.check-version-change.outputs.is_prerelease == 'false'
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+        run: poetry publish --no-build
+
+      
+      - name: Publish to Test PyPI
+        if: needs.check-version-change.outputs.is_prerelease == 'true'
+        env:
+          POETRY_REPOSITORIES_TESTPYPI_URL: https://test.pypi.org/legacy/
+          POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TEST_PYPI_TOKEN }}
+        run: poetry publish --no-build -r testpypi
