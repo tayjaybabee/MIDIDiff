@@ -27,7 +27,7 @@ jobs:
       - name: Get current version
         id: get_version
         run: |
-          VERSION=$(grep -Po '(?<=version = ")[^"]*' pyproject.toml)
+          VERSION=$(grep -Po '(?<=version = ["\x27])[^"\x27]*' pyproject.toml)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Current version: $VERSION"
       
@@ -47,7 +47,7 @@ jobs:
         id: check_prerelease
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          if echo "$VERSION" | grep -qE "(dev|alpha|beta|rc|a|b)"; then
+          if echo "$VERSION" | grep -qE '([-\.]dev|[-\.]alpha|[-\.]beta|[-\.]rc|[-\.]a[0-9]+|[-\.]b[0-9]+)'; then
             echo "is_prerelease=true" >> $GITHUB_OUTPUT
             echo "This is a pre-release version"
           else
