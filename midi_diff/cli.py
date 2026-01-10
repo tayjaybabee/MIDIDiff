@@ -25,6 +25,10 @@ from midi_diff.core import main
 DIST_NAME = "midi-diff"
 PYPI_JSON_URL = f"https://pypi.org/pypi/{DIST_NAME}/json"
 
+# Update check configuration
+UPDATE_CHECK_ENV_VAR = "MIDIFF_CHECK_UPDATES"
+UPDATE_CHECK_TRUTHY_VALUES = ("1", "true", "yes")
+
 
 def _get_version() -> str:
     version = "unknown"
@@ -66,10 +70,10 @@ def _print_version_info() -> None:
     
     # Only check for updates if explicitly enabled via environment variable
     # This avoids potential hangs on slow/unreliable network connections
-    if os.getenv("MIDIFF_CHECK_UPDATES", "").lower() in ("1", "true", "yes"):
+    if os.getenv(UPDATE_CHECK_ENV_VAR, "").lower() in UPDATE_CHECK_TRUTHY_VALUES:
         print(_check_for_update(current_version))
     else:
-        print("Update check disabled (set MIDIFF_CHECK_UPDATES=1 to enable).")
+        print(f"Update check disabled (set {UPDATE_CHECK_ENV_VAR}=1 to enable).")
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -83,7 +87,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "-V",
         "--version",
         action="store_true",
-        help="Show version and environment info (set MIDIFF_CHECK_UPDATES=1 to check for updates).",
+        help=f"Show version and environment info (set {UPDATE_CHECK_ENV_VAR}=1 to check for updates).",
     )
     return parser
 
