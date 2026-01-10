@@ -24,10 +24,21 @@ jobs:
         with:
           fetch-depth: 2
       
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: false
+      
       - name: Get current version
         id: get_version
         run: |
-          VERSION=$(sed -n "s/^version[[:space:]]*=[[:space:]]*[\"']\([^\"']*\)[\"'].*/\1/p" pyproject.toml)
+          VERSION=$(poetry version --short)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Current version: $VERSION"
       
@@ -35,7 +46,7 @@ jobs:
         id: check
         run: |
           git diff HEAD^ HEAD -- pyproject.toml > version_diff.txt
-          if grep -q "^+version = " version_diff.txt || grep -q "^-version = " version_diff.txt; then
+          if grep -qE "^[+-]version[[:space:]]*=" version_diff.txt; then
             echo "changed=true" >> $GITHUB_OUTPUT
             echo "Version has changed"
           else
@@ -47,7 +58,7 @@ jobs:
         id: check_prerelease
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          if echo "$VERSION" | grep -qE '([-\.]dev|[-\.]alpha|[-\.]beta|[-\.]rc|[-\.]a[0-9]+|[-\.]b[0-9]+)'; then
+          if echo "$VERSION" | grep -qE '(dev|alpha|beta|rc|a[0-9]+|b[0-9]+)'; then
             echo "is_prerelease=true" >> $GITHUB_OUTPUT
             echo "This is a pre-release version"
           else
