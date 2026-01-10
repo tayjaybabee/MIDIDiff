@@ -31,6 +31,14 @@ UPDATE_CHECK_ENV_VAR = "MIDIFF_CHECK_UPDATES"
 UPDATE_CHECK_TRUTHY_VALUES = ("1", "true", "yes")
 
 
+class VersionAction(argparse.Action):
+    """Custom argparse action to print version info and exit."""
+    
+    def __call__(self, parser, namespace, values, option_string=None):
+        _print_version_info()
+        parser.exit()
+
+
 def _get_version() -> str:
     version = "unknown"
     try:
@@ -87,7 +95,8 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-V",
         "--version",
-        action="store_true",
+        action=VersionAction,
+        nargs=0,
         help=(
             f"Show version and environment info "
             f"(set {UPDATE_CHECK_ENV_VAR} to a truthy value like '1', 'true', or 'yes' to check for updates)."
@@ -106,9 +115,6 @@ def cli() -> None:
     """
     parser = _build_parser()
     args = parser.parse_args()
-    if args.version:
-        _print_version_info()
-        return
     main(args.file_a, args.file_b, args.out_file)
 
 
