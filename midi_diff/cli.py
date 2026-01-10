@@ -15,6 +15,7 @@ Description:
 """
 import argparse
 import json
+import os
 import platform
 import sys
 import urllib.request
@@ -62,7 +63,13 @@ def _print_version_info() -> None:
     print(f"Python {platform.python_version()}")
     print(f"Platform {platform.platform()}")
     print(f"mido {_get_dependency_version('mido')}")
-    print(_check_for_update(current_version))
+    
+    # Only check for updates if explicitly enabled via environment variable
+    # This avoids potential hangs on slow/unreliable network connections
+    if os.getenv("MIDIFF_CHECK_UPDATES", "").lower() in ("1", "true", "yes"):
+        print(_check_for_update(current_version))
+    else:
+        print("Update check disabled (set MIDIFF_CHECK_UPDATES=1 to enable).")
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -76,7 +83,7 @@ def _build_parser() -> argparse.ArgumentParser:
         "-V",
         "--version",
         action="store_true",
-        help="Show version, environment info, and update status.",
+        help="Show version and environment info (set MIDIFF_CHECK_UPDATES=1 to check for updates).",
     )
     return parser
 
