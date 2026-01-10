@@ -32,7 +32,7 @@ jobs:
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
-          version: latest
+          version: 1.8.0
           virtualenvs-create: false
       
       - name: Get current version
@@ -45,6 +45,8 @@ jobs:
       - name: Check if version changed
         id: check
         run: |
+          # Check if version line in pyproject.toml was modified
+          # Looks for lines starting with +/- and containing "version ="
           git diff HEAD^ HEAD -- pyproject.toml > version_diff.txt
           if grep -qE "^[+-]version[[:space:]]*=" version_diff.txt; then
             echo "changed=true" >> $GITHUB_OUTPUT
@@ -58,6 +60,11 @@ jobs:
         id: check_prerelease
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
+          # PEP 440 pre-release detection:
+          # Matches versions ending with: dev, alpha, beta, rc (with optional number)
+          # or a[N]/b[N] where N is a digit sequence
+          # Supports separators: dot (.), hyphen (-), or none
+          # Examples: 1.0.0.dev1, 1.0.0-alpha, 1.0.0beta2, 1.0.0rc1, 1.0.0a1, 1.0.0b2
           if echo "$VERSION" | grep -qE '(\.|\-)?(dev|alpha|beta|rc)([0-9]+)?$|(\.|\-)?[ab][0-9]+$'; then
             echo "is_prerelease=true" >> $GITHUB_OUTPUT
             echo "This is a pre-release version"
@@ -81,7 +88,7 @@ jobs:
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
-          version: latest
+          version: 1.8.0
           virtualenvs-create: true
           virtualenvs-in-project: true
       
