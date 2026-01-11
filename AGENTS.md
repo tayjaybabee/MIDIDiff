@@ -191,7 +191,7 @@ version = "1.0.0-dev.3"  # <-- Update this line
 ## Development Workflow
 
 1. **Make code changes** in `midi_diff/*.py`
-2. **Update CHANGELOG.md** for user-facing changes (see [CONTRIBUTING.md](../CONTRIBUTING.md#changelog-requirements) for detailed guidelines)
+2. **Update CHANGELOG.md** for user-facing changes (see [CONTRIBUTING.md](CONTRIBUTING.md#changelog-requirements) for detailed guidelines)
 3. **Bump version** in `pyproject.toml` if appropriate for the changes
 4. **Run Poetry install** if dependencies changed: `poetry install`
 5. **Build package**: `poetry build`
@@ -202,7 +202,7 @@ version = "1.0.0-dev.3"  # <-- Update this line
 
 **CRITICAL:** All PRs with user-facing changes MUST update `CHANGELOG.md` before merging.
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md#changelog-requirements) for complete details on:
+See [CONTRIBUTING.md](CONTRIBUTING.md#changelog-requirements) for complete details on:
 - When to update the changelog
 - When to skip changelog updates
 - How to format changelog entries
