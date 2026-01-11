@@ -23,8 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automatic output file name incrementing to prevent overwrites
 - Version flag (`-V`/`--version`) with environment details and PyPI update check
 - Poetry-based build system with Python 3.13+ requirement
-
-### Features
 - Extract notes from MIDI files using `mido` library
 - Set-based note comparison for efficient diffing
 - Output only notes present in one file but not the other
