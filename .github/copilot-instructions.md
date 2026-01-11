@@ -191,15 +191,53 @@ version = "1.0.0-dev.3"  # <-- Update this line
 ## Development Workflow
 
 1. **Make code changes** in `midi_diff/*.py`
-2. **Bump version** in `pyproject.toml` if appropriate for the changes
-3. **Run Poetry install** if dependencies changed: `poetry install`
-4. **Build package**: `poetry build`
-5. **Test manually** with MIDI files (no automated tests available)
-6. **Verify imports work**: `poetry run python -c "from midi_diff.cli import cli; print('OK')"`
+2. **Update CHANGELOG.md** for user-facing changes (see Changelog Requirements below)
+3. **Bump version** in `pyproject.toml` if appropriate for the changes
+4. **Run Poetry install** if dependencies changed: `poetry install`
+5. **Build package**: `poetry build`
+6. **Test manually** with MIDI files (no automated tests available)
+7. **Verify imports work**: `poetry run python -c "from midi_diff.cli import cli; print('OK')"`
+
+## Changelog Requirements
+
+**CRITICAL:** All PRs with user-facing changes MUST update `CHANGELOG.md` before merging.
+
+### When to Update CHANGELOG.md
+
+Update the changelog for:
+- New features or functionality
+- Bug fixes affecting user behavior
+- Breaking changes or deprecations
+- CLI argument/option changes
+- Performance improvements
+- Security fixes
+- Significant documentation changes
+
+### How to Update
+
+1. Edit `CHANGELOG.md` in the repository root
+2. Add entries under the `[Unreleased]` section
+3. Use appropriate categories: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`
+4. Follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format
+
+### Example Entry
+
+```markdown
+## [Unreleased]
+
+### Added
+- Support for JSON export format (#42)
+
+### Fixed
+- Crash when processing MIDI files with empty tracks (#38)
+```
+
+See `CONTRIBUTING.md` for detailed changelog guidelines.
 
 ## Important Notes for Agents
 
 - **ALWAYS verify Python 3.13+ is available before attempting `poetry install`**
+- **ALWAYS update CHANGELOG.md** when making user-facing changes (new features, bug fixes, breaking changes, etc.)
 - **DO NOT commit** `poetry.lock`, `dist/`, or `__pycache__/` (all gitignored)
 - **DO NOT modify** Python version requirement in `pyproject.toml` without explicit instruction
 - **The CLI has no --help flag** - running without args shows usage
@@ -207,11 +245,14 @@ version = "1.0.0-dev.3"  # <-- Update this line
 - **Import structure:** The package can be imported as `midi_diff` or run as `midi-diff` CLI command
 - **Output file safety:** `core.main()` never overwrites files - it auto-increments the filename
 - **Velocity is ignored in diffs** - only pitch, start time, and duration matter for comparison
+- **Changelog format:** Follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) - see `CONTRIBUTING.md` for details
 
 ## File Listing
 
 **Root files:**
 - `.gitignore` (110 lines)
+- `CHANGELOG.md` (Keep a Changelog format)
+- `CONTRIBUTING.md` (Contribution guidelines with changelog requirements)
 - `LICENSE.md` (MIT License, Inspyre Softworks)
 - `README.md` (71 bytes, minimal)
 - `pyproject.toml` (411 bytes, project config)
