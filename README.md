@@ -54,6 +54,16 @@ details, and the result of an update check against PyPI:
 midi-diff --version
 ```
 
+## Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
+- How to contribute code and documentation
+- Changelog update requirements
+- Development setup
+- Pull request process
+
+All contributions with user-facing changes must update the [CHANGELOG.md](CHANGELOG.md) file.
+
 ## How note matching works
 
 Notes are considered identical when they share the same:
