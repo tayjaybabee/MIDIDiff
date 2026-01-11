@@ -27,8 +27,8 @@
 - [ ] Verified installation works (`poetry install`)
 
 ## Related Issues
-<!-- Link any related issues -->
-Fixes #
+<!-- Link any related issues. Remove this section if not applicable -->
+Fixes #(issue-number)
 
 ## Checklist
 - [ ] My code follows the project's code style
