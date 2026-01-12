@@ -40,19 +40,18 @@ class VersionAction(argparse.Action):
 
 
 def _get_version() -> str:
-    version = "unknown"
-    try:
-        version = metadata.version(DIST_NAME)
-    except metadata.PackageNotFoundError:
-        pass
-    return version
+    return _get_metadata_version(DIST_NAME, "unknown")
 
 
 def _get_dependency_version(name: str) -> str:
+    return _get_metadata_version(name, "not installed")
+
+
+def _get_metadata_version(name: str, fallback: str) -> str:
     try:
         return metadata.version(name)
     except metadata.PackageNotFoundError:
-        return "not installed"
+        return fallback
 
 
 def _check_for_update(current_version: str) -> str:
