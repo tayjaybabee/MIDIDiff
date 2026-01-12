@@ -218,7 +218,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md#changelog-requirements) for complete detai
 - **ALWAYS bump version in pyproject.toml** when making user-facing changes (new features, bug fixes, breaking changes, etc.)
 - **DO NOT commit** `poetry.lock`, `dist/`, or `__pycache__/` (all gitignored)
 - **DO NOT modify** Python version requirement in `pyproject.toml` without explicit instruction
-- **The CLI has no --help flag** - running without args shows usage
+- **The CLI uses subcommands** (`diff`, `debug-info`) and supports `--help` for usage information
 - **No tests exist** - focus on build success and manual verification
 - **Import structure:** The package can be imported as `midi_diff` or run as `midi-diff` CLI command
 - **Output file safety:** `core.main()` never overwrites files - it auto-increments the filename
