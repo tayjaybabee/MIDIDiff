@@ -133,9 +133,12 @@ def _print_debug_info() -> None:
     cwd = os.getcwd()
     
     # Collect relevant environment variables
+    path_env = os.getenv('PATH', 'not set')
+    truncated_path = path_env[:100] + '...' if path_env != 'not set' and len(path_env) > 100 else path_env
+    
     env_vars = {
         UPDATE_CHECK_ENV_VAR: os.getenv(UPDATE_CHECK_ENV_VAR, 'not set'),
-        'PATH': os.getenv('PATH', 'not set')[:100] + '...' if os.getenv('PATH', '') and len(os.getenv('PATH', '')) > 100 else os.getenv('PATH', 'not set'),
+        'PATH': truncated_path,
         'PYTHONPATH': os.getenv('PYTHONPATH', 'not set'),
     }
     
