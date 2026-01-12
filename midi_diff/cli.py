@@ -21,6 +21,9 @@ import sys
 import urllib.error
 import urllib.request
 from importlib import metadata
+from rich.console import Console
+from rich.panel import Panel
+from rich.markdown import Markdown
 from midi_diff.core import main
 
 DIST_NAME = "midi-diff"
@@ -40,19 +43,18 @@ class VersionAction(argparse.Action):
 
 
 def _get_version() -> str:
-    version = "unknown"
-    try:
-        version = metadata.version(DIST_NAME)
-    except metadata.PackageNotFoundError:
-        pass
-    return version
+    return _get_metadata_version(DIST_NAME, "unknown")
 
 
 def _get_dependency_version(name: str) -> str:
+    return _get_metadata_version(name, "not installed")
+
+
+def _get_metadata_version(name: str, fallback: str) -> str:
     try:
         return metadata.version(name)
     except metadata.PackageNotFoundError:
-        return "not installed"
+        return fallback
 
 
 def _check_for_update(current_version: str) -> str:
@@ -71,19 +73,50 @@ def _check_for_update(current_version: str) -> str:
 
 
 def _print_version_info() -> None:
+    console = Console()
     current_version = _get_version()
-    print(f"MIDIDiff {current_version}")
-    print(f"Python {platform.python_version()}")
-    print(f"Platform {platform.platform()}")
-    print(f"mido {_get_dependency_version('mido')}")
-    
-    # Only check for updates if explicitly enabled via environment variable
-    # This avoids potential hangs on slow/unreliable network connections
-    if os.getenv(UPDATE_CHECK_ENV_VAR, "").lower() in UPDATE_CHECK_TRUTHY_VALUES:
-        print(_check_for_update(current_version))
-    else:
-        print(f"Update check disabled (set {UPDATE_CHECK_ENV_VAR}=1 to enable).")
 
+    markdown_text = f"""
+# Version Information
+
+**MIDIDiff:** {current_version}
+
+----
+
+**Python:** {platform.python_version()}  
+**Platform:** {platform.platform()}  
+
+----
+
+**mido:** {_get_dependency_version('mido')}  
+**rich:** {_get_dependency_version('rich')}
+""".strip()
+
+    md = Markdown(markdown_text)
+
+    panel = Panel(
+        md,
+        border_style='blue',
+        padding=(1, 2),
+    )
+
+    console.print(panel)
+
+    # Only check for updates if explicitly enabled via environment variable
+    if os.getenv(UPDATE_CHECK_ENV_VAR, '').lower() in UPDATE_CHECK_TRUTHY_VALUES:
+        update_msg = _check_for_update(current_version)
+
+        if 'Update available' in update_msg:
+            console.print(f'[yellow]⚠ {update_msg}[/yellow]')
+        elif 'Up to date' in update_msg:
+            console.print(f'[green]✓ {update_msg}[/green]')
+        else:
+            console.print(f'[red]{update_msg}[/red]')
+    else:
+        console.print(
+            f'[dim]Update check disabled '
+            f'(set {UPDATE_CHECK_ENV_VAR}=1 to enable).[/dim]'
+        )
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
