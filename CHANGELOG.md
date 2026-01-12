@@ -10,10 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - CHANGELOG.md file to track project changes
 - Contribution guidelines (CONTRIBUTING.md) with changelog maintenance requirements
-- Changelog maintenance requirements added to agent instructions
+- Pull request template with changelog update requirements
+- Issue templates for bug reports and feature requests
 
 ### Changed
 - Updated documentation to mandate changelog updates for user-facing changes
+- Consolidated changelog guidance to CONTRIBUTING.md with references from AGENTS.md and copilot-instructions.md to reduce duplication
+- Simplified PR template to have single changelog checklist item instead of duplicate entries
 
 ## [1.0.0-dev.2] - 2026-01-10
 

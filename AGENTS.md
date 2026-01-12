@@ -191,7 +191,7 @@ version = "1.0.0-dev.3"  # <-- Update this line
 ## Development Workflow
 
 1. **Make code changes** in `midi_diff/*.py`
-2. **Update CHANGELOG.md** for user-facing changes (see Changelog Requirements below)
+2. **Update CHANGELOG.md** for user-facing changes (see [CONTRIBUTING.md](CONTRIBUTING.md#changelog-requirements) for detailed guidelines)
 3. **Bump version** in `pyproject.toml` if appropriate for the changes
 4. **Run Poetry install** if dependencies changed: `poetry install`
 5. **Build package**: `poetry build`
@@ -202,37 +202,11 @@ version = "1.0.0-dev.3"  # <-- Update this line
 
 **CRITICAL:** All PRs with user-facing changes MUST update `CHANGELOG.md` before merging.
 
-### When to Update CHANGELOG.md
-
-Update the changelog for:
-- New features or functionality
-- Bug fixes affecting user behavior
-- Breaking changes or deprecations
-- CLI argument/option changes
-- Performance improvements
-- Security fixes
-- Significant documentation changes
-
-### How to Update
-
-1. Edit `CHANGELOG.md` in the repository root
-2. Add entries under the `[Unreleased]` section
-3. Use appropriate categories: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`
-4. Follow [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format
-
-### Example Entry
-
-```markdown
-## [Unreleased]
-
-### Added
-- Support for JSON export format (#42)
-
-### Fixed
-- Crash when processing MIDI files with empty tracks (#38)
-```
-
-See `CONTRIBUTING.md` for detailed changelog guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md#changelog-requirements) for complete details on:
+- When to update the changelog
+- When to skip changelog updates
+- How to format changelog entries
+- Examples of good and poor entries
 
 ## Important Notes for Agents
 
