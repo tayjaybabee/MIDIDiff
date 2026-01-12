@@ -33,6 +33,7 @@ Fixes #(issue-number)
 ## Checklist
 - [ ] My code follows the project's code style
 - [ ] I have updated the documentation (if applicable)
+- [ ] I have updated CHANGELOG.md for user-facing changes
 - [ ] My changes generate no new build errors or warnings
 - [ ] I have checked that my changes don't break existing functionality
 
