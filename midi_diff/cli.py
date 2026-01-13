@@ -237,12 +237,20 @@ def cli() -> None:
     Command-line interface for MIDIDiff.
 
     Usage:
+        midi-diff fileA.mid fileB.mid output.mid  (assumes 'diff' subcommand)
         midi-diff diff fileA.mid fileB.mid output.mid
         midi-diff debug-info
         midi-diff --version
 
     """
     parser = _build_parser()
+    
+    # Check if we have exactly 3 positional args without a subcommand
+    # This allows backward compatibility: midi-diff file1 file2 output
+    if len(sys.argv) >= 4 and sys.argv[1] not in ['diff', 'debug-info', '-V', '--version', '-h', '--help']:
+        # Insert 'diff' as the subcommand
+        sys.argv.insert(1, 'diff')
+    
     args = parser.parse_args()
     
     # Handle subcommands

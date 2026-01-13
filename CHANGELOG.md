@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simplified PR template to have single changelog checklist item instead of duplicate entries
 - Version info display now uses rich formatting with colored table and panel layout
 - CLI refactored to use subcommand structure (argparse subparsers) with `diff` and `debug-info` subcommands
+- `diff` subcommand is now the default when no subcommand is specified, maintaining backward compatibility with original CLI usage
 
 ## [1.0.0-dev.3] - 2026-01-12
 
