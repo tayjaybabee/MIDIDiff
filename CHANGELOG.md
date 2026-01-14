@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `rich` library as a dependency for enhanced terminal output
 - Colorized and formatted version output (`-V`/`--version`) using rich panels and tables
 - `debug-info` subcommand for displaying comprehensive diagnostic information in Rich Markdown format
+- Roadmap documenting the planned CLI sub-package separation and 1.0.0 release steps
 
 ### Changed
 - Updated documentation to mandate changelog updates for user-facing changes
