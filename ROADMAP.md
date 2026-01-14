@@ -12,14 +12,21 @@ exposes a clean API while the CLI can evolve independently.
 ### Proposed structure
 - Keep `midi_diff` as the core library (note extraction, diff logic, data
   models).
-- Introduce a dedicated CLI sub-package (e.g., `midi_diff_cli`) that contains:
+- Evolve the existing `midi_diff.cli` module into a dedicated CLI sub-package
+  (for example, `midi_diff/cli/__init__.py` and `midi_diff/cli/main.py`) that
+  contains:
   - Argument parsing, version/debug info rendering, and environment checks.
-  - Entry point definition (`midi-diff = "midi_diff_cli.main:cli"`).
-  - Optional CLI-only dependencies (e.g., `rich`) declared separately to keep
-    the core library lightweight.
+  - Entry point definition (`midi-diff = "midi_diff.cli:cli"`), keeping the
+    existing convention of a hyphenated distribution/CLI name (`midi-diff`)
+    and underscored package/import name (`midi_diff`).
+  - Optional CLI-only dependencies (e.g., `rich`) declared separately so the
+    core library remains lightweight. Today `rich` is still listed as a core
+    dependency in `pyproject.toml`; as part of this separation it will be
+    moved into a dedicated CLI extras group (for example
+    `[project.optional-dependencies.cli]`).
 - Provide a compatibility shim in `midi_diff/cli.py` (or equivalent) that
-  delegates to the new CLI package to avoid breaking existing imports and the
-  module entry point (`python -m midi_diff.cli`).
+  delegates to the new internal CLI structure to avoid breaking existing
+  imports and the module entry point (`python -m midi_diff.cli`).
 
 ### Execution steps
 1. Create the new CLI sub-package with a minimal `main.py` that wires the parser
@@ -27,7 +34,9 @@ exposes a clean API while the CLI can evolve independently.
 2. Move CLI-only helpers (version reporting, debug info, update checks) into the
    new package.
 3. Update `pyproject.toml` to point the console script at the new package and
-   split dependencies so CLI extras do not burden library consumers.
+   split dependencies so CLI extras (Poetry optional dependency groups such as
+   `[project.optional-dependencies]` / `[tool.poetry.extras]`) do not burden
+   library consumers.
 4. Add focused smoke coverage (CLI invocation and debug-info path) once the new
    package is in place.
 5. Document the new layout in `README.md` and migration notes, ensuring the
