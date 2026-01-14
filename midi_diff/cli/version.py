@@ -36,6 +36,9 @@ PYPI_JSON_URL = f"https://pypi.org/pypi/{DIST_NAME}/json"
 UPDATE_CHECK_ENV_VAR = "MIDIFF_CHECK_UPDATES"
 UPDATE_CHECK_TRUTHY_VALUES = ("1", "true", "yes")
 
+# Path truncation for debug output
+PATH_TRUNCATE_LENGTH = 100
+
 
 def _get_version() -> str:
     """Get the installed version of MIDIDiff."""
@@ -174,7 +177,7 @@ def print_debug_info() -> None:
     
     # Collect relevant environment variables
     path_env = os.getenv('PATH', 'not set')
-    truncated_path = path_env[:100] + '...' if path_env != 'not set' and len(path_env) > 100 else path_env
+    truncated_path = path_env[:PATH_TRUNCATE_LENGTH] + '...' if path_env != 'not set' and len(path_env) > PATH_TRUNCATE_LENGTH else path_env
     
     env_vars = {
         UPDATE_CHECK_ENV_VAR: os.getenv(UPDATE_CHECK_ENV_VAR, 'not set'),
