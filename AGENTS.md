@@ -192,7 +192,10 @@ version = "1.0.0-dev.3"  # <-- Update this line
 
 1. **Make code changes** in `midi_diff/*.py`
 2. **Update CHANGELOG.md** for user-facing changes (see [CONTRIBUTING.md](CONTRIBUTING.md#changelog-requirements) for detailed guidelines)
-3. **Bump version** in `pyproject.toml` if appropriate for the changes
+3. **Bump version** in `pyproject.toml` for user-facing changes:
+   - New features: increment dev version (e.g., `1.0.0-dev.3` → `1.0.0-dev.4`)
+   - Bug fixes: increment dev version or patch version
+   - Breaking changes: increment major version
 4. **Run Poetry install** if dependencies changed: `poetry install`
 5. **Build package**: `poetry build`
 6. **Test manually** with MIDI files (no automated tests available)
@@ -212,9 +215,10 @@ See [CONTRIBUTING.md](CONTRIBUTING.md#changelog-requirements) for complete detai
 
 - **ALWAYS verify Python 3.13+ is available before attempting `poetry install`**
 - **ALWAYS update CHANGELOG.md** when making user-facing changes (new features, bug fixes, breaking changes, etc.)
+- **ALWAYS bump version in pyproject.toml** when making user-facing changes (new features, bug fixes, breaking changes, etc.)
 - **DO NOT commit** `poetry.lock`, `dist/`, or `__pycache__/` (all gitignored)
 - **DO NOT modify** Python version requirement in `pyproject.toml` without explicit instruction
-- **The CLI has no --help flag** - running without args shows usage
+- **The CLI uses subcommands** (`diff`, `debug-info`) and supports `--help` for usage information
 - **No tests exist** - focus on build success and manual verification
 - **Import structure:** The package can be imported as `midi_diff` or run as `midi-diff` CLI command
 - **Output file safety:** `core.main()` never overwrites files - it auto-increments the filename

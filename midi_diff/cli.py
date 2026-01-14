@@ -33,6 +33,9 @@ PYPI_JSON_URL = f"https://pypi.org/pypi/{DIST_NAME}/json"
 UPDATE_CHECK_ENV_VAR = "MIDIFF_CHECK_UPDATES"
 UPDATE_CHECK_TRUTHY_VALUES = ("1", "true", "yes")
 
+# Known subcommands and flags for backward compatibility check
+KNOWN_SUBCOMMANDS_AND_FLAGS = frozenset(['diff', 'debug-info', '-V', '--version', '-h', '--help'])
+
 
 class VersionAction(argparse.Action):
     """Custom argparse action to print version info and exit."""
@@ -118,13 +121,89 @@ def _print_version_info() -> None:
             f'(set {UPDATE_CHECK_ENV_VAR}=1 to enable).[/dim]'
         )
 
+
+def _print_debug_info() -> None:
+    """Print comprehensive debug information in Rich Markdown format."""
+    console = Console()
+    
+    # Get all version information
+    mididiff_version = _get_version()
+    python_version = platform.python_version()
+    platform_info = platform.platform()
+    mido_version = _get_dependency_version('mido')
+    rich_version = _get_dependency_version('rich')
+    
+    # Get environment information
+    cwd = os.getcwd()
+    
+    # Collect relevant environment variables
+    path_env = os.getenv('PATH', 'not set')
+    truncated_path = path_env[:100] + '...' if path_env != 'not set' and len(path_env) > 100 else path_env
+    
+    env_vars = {
+        UPDATE_CHECK_ENV_VAR: os.getenv(UPDATE_CHECK_ENV_VAR, 'not set'),
+        'PATH': truncated_path,
+        'PYTHONPATH': os.getenv('PYTHONPATH', 'not set'),
+    }
+    
+    # Build markdown content
+    markdown_text = f"""
+# MIDIDiff Debug Information
+
+## Version Information
+
+| Component | Version |
+|-----------|---------|
+| **MIDIDiff** | `{mididiff_version}` |
+| **Python** | `{python_version}` |
+| **mido** | `{mido_version}` |
+| **rich** | `{rich_version}` |
+
+## Platform Information
+
+| Property | Value |
+|----------|-------|
+| **Platform** | `{platform_info}` |
+| **System** | `{platform.system()}` |
+| **Release** | `{platform.release()}` |
+| **Machine** | `{platform.machine()}` |
+| **Processor** | `{platform.processor() or 'unknown'}` |
+
+## Environment
+
+| Variable | Value |
+|----------|-------|
+| **Working Directory** | `{cwd}` |
+| **{UPDATE_CHECK_ENV_VAR}** | `{env_vars[UPDATE_CHECK_ENV_VAR]}` |
+| **PYTHONPATH** | `{env_vars['PYTHONPATH']}` |
+
+**PATH** (truncated):
+```
+{env_vars['PATH']}
+```
+
+---
+
+*Copy this information when reporting issues or requesting support.*
+""".strip()
+    
+    md = Markdown(markdown_text)
+    
+    panel = Panel(
+        md,
+        border_style='cyan',
+        padding=(1, 2),
+        title='[bold cyan]Debug Information[/bold cyan]',
+    )
+    
+    console.print(panel)
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Compare two MIDI files and output their differences.",
+        prog='midi-diff',
+        description="MIDIDiff - Compare MIDI files and output their differences.",
     )
-    parser.add_argument("file_a", help="Path to the first MIDI file.")
-    parser.add_argument("file_b", help="Path to the second MIDI file.")
-    parser.add_argument("out_file", help="Path for the diff MIDI output.")
     parser.add_argument(
         "-V",
         "--version",
@@ -135,6 +214,25 @@ def _build_parser() -> argparse.ArgumentParser:
             f"(set {UPDATE_CHECK_ENV_VAR} to a truthy value like '1', 'true', or 'yes' to check for updates)."
         ),
     )
+    
+    # Create subparsers for subcommands
+    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+    
+    # diff subcommand (main functionality)
+    diff_parser = subparsers.add_parser(
+        'diff',
+        help='Compare two MIDI files and output their differences'
+    )
+    diff_parser.add_argument("file_a", help="Path to the first MIDI file.")
+    diff_parser.add_argument("file_b", help="Path to the second MIDI file.")
+    diff_parser.add_argument("out_file", help="Path for the diff MIDI output.")
+    
+    # debug-info subcommand (no additional arguments needed)
+    subparsers.add_parser(
+        'debug-info',
+        help='Display diagnostic and environment information'
+    )
+    
     return parser
 
 
@@ -143,12 +241,31 @@ def cli() -> None:
     Command-line interface for MIDIDiff.
 
     Usage:
-        python -m midi_diff.cli fileA.mid fileB.mid diff.mid
+        midi-diff fileA.mid fileB.mid output.mid  (assumes 'diff' subcommand)
+        midi-diff diff fileA.mid fileB.mid output.mid
+        midi-diff debug-info
+        midi-diff --version
 
     """
     parser = _build_parser()
+    
+    # Backward compatibility: If first arg isn't a known subcommand/flag,
+    # assume it's a file path and prepend 'diff' to make it work with the new structure.
+    # Argparse will handle validation of the actual arguments.
+    if len(sys.argv) > 1 and sys.argv[1] not in KNOWN_SUBCOMMANDS_AND_FLAGS:
+        sys.argv.insert(1, 'diff')
+    
     args = parser.parse_args()
-    main(args.file_a, args.file_b, args.out_file)
+    
+    # Handle subcommands
+    if args.command == 'diff':
+        main(args.file_a, args.file_b, args.out_file)
+    elif args.command == 'debug-info':
+        _print_debug_info()
+    else:
+        # No subcommand provided - show help
+        parser.print_help()
+        sys.exit(1)
 
 
 if __name__ == "__main__":

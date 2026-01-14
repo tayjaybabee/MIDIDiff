@@ -14,12 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Issue templates for bug reports and feature requests
 - `rich` library as a dependency for enhanced terminal output
 - Colorized and formatted version output (`-V`/`--version`) using rich panels and tables
+- `debug-info` subcommand for displaying comprehensive diagnostic information in Rich Markdown format
 
 ### Changed
 - Updated documentation to mandate changelog updates for user-facing changes
 - Consolidated changelog guidance to CONTRIBUTING.md with references from AGENTS.md and copilot-instructions.md to reduce duplication
 - Simplified PR template to have single changelog checklist item instead of duplicate entries
 - Version info display now uses rich formatting with colored table and panel layout
+- CLI refactored to use subcommand structure (argparse subparsers) with `diff` and `debug-info` subcommands
+- `diff` subcommand is now the default when no subcommand is specified, maintaining backward compatibility with original CLI usage
 
 ## [1.0.0-dev.3] - 2026-01-12
 
