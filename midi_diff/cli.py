@@ -33,6 +33,9 @@ PYPI_JSON_URL = f"https://pypi.org/pypi/{DIST_NAME}/json"
 UPDATE_CHECK_ENV_VAR = "MIDIFF_CHECK_UPDATES"
 UPDATE_CHECK_TRUTHY_VALUES = ("1", "true", "yes")
 
+# Known subcommands and flags for backward compatibility check
+KNOWN_SUBCOMMANDS_AND_FLAGS = ['diff', 'debug-info', '-V', '--version', '-h', '--help']
+
 
 class VersionAction(argparse.Action):
     """Custom argparse action to print version info and exit."""
@@ -117,6 +120,7 @@ def _print_version_info() -> None:
             f'[dim]Update check disabled '
             f'(set {UPDATE_CHECK_ENV_VAR}=1 to enable).[/dim]'
         )
+
 
 def _print_debug_info() -> None:
     """Print comprehensive debug information in Rich Markdown format."""
@@ -223,8 +227,8 @@ def _build_parser() -> argparse.ArgumentParser:
     diff_parser.add_argument("file_b", help="Path to the second MIDI file.")
     diff_parser.add_argument("out_file", help="Path for the diff MIDI output.")
     
-    # debug-info subcommand
-    debug_parser = subparsers.add_parser(
+    # debug-info subcommand (no additional arguments needed)
+    subparsers.add_parser(
         'debug-info',
         help='Display diagnostic and environment information'
     )
@@ -247,7 +251,7 @@ def cli() -> None:
     
     # Check if we have exactly 3 positional args without a subcommand
     # This allows backward compatibility: midi-diff file1 file2 output
-    if len(sys.argv) >= 4 and sys.argv[1] not in ['diff', 'debug-info', '-V', '--version', '-h', '--help']:
+    if len(sys.argv) >= 4 and sys.argv[1] not in KNOWN_SUBCOMMANDS_AND_FLAGS:
         # Insert 'diff' as the subcommand
         sys.argv.insert(1, 'diff')
     
