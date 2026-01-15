@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `run_cli()` now accepts optional `argv` parameter (type-annotated as `Sequence[str] | None`) for improved testability
 - CLI argument parsing no longer mutates `sys.argv`
 
+### Fixed
+- Release workflow now triggers on the default `master` branch
+
 ### Removed
 - `midi_diff/cli.py` backward compatibility shim (conflicts with new package structure)
 - `_get_known_subcommands_and_flags()` function that relied on private argparse APIs
