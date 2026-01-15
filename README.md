@@ -8,6 +8,7 @@ start tick, and duration; velocity differences are ignored.
 
 - Python 3.13+
 - `mido` (installed automatically via the project dependencies)
+- `rich` (optional, for enhanced CLI output)
 
 ## Installation
 
@@ -17,6 +18,8 @@ start tick, and duration; velocity differences are ignored.
 poetry install
 ```
 
+This installs the core library and all optional dependencies, including the CLI extras.
+
 ### Build and install locally
 
 ```shell
@@ -24,7 +27,29 @@ poetry build
 pip install dist/*.whl
 ```
 
+For CLI functionality with rich formatting, install with CLI extras:
+
+```shell
+pip install "dist/*.whl[cli]"
+```
+
+Or install directly from the package:
+
+```shell
+pip install "midi-diff[cli]"
+```
+
+### Core library only (no CLI dependencies)
+
+If you only need the core library without CLI dependencies (e.g., for programmatic use), install without extras:
+
+```shell
+pip install midi-diff
+```
+
 ## Usage
+
+### Command-line interface
 
 The CLI expects two input MIDI files and an output path for the diff:
 
@@ -54,6 +79,59 @@ details, and the result of an update check against PyPI:
 midi-diff --version
 ```
 
+### Debug information
+
+Use the `debug-info` subcommand to display comprehensive diagnostic information:
+
+```shell
+midi-diff debug-info
+```
+
+### Programmatic usage
+
+You can also use MIDIDiff as a library in your Python code:
+
+```python
+from midi_diff.core import main
+
+# Compare two MIDI files and save the diff
+main('fileA.mid', 'fileB.mid', 'diff.mid')
+```
+
+Or work with the lower-level API:
+
+```python
+import mido
+from midi_diff.midi_utils import extract_notes, notes_to_midi
+
+# Load MIDI files
+mid_a = mido.MidiFile('fileA.mid')
+mid_b = mido.MidiFile('fileB.mid')
+
+# Extract notes
+notes_a = set(extract_notes(mid_a))
+notes_b = set(extract_notes(mid_b))
+
+# Compute diff
+diff_notes = notes_a.symmetric_difference(notes_b)
+
+# Create output MIDI
+diff_mid = notes_to_midi(list(diff_notes), ticks_per_beat=mid_a.ticks_per_beat)
+diff_mid.save('diff.mid')
+```
+
+## Architecture
+
+### CLI Sub-package (v1.0.0+)
+
+Starting with version 1.0.0, the CLI has been separated into its own sub-package (`midi_diff.cli`)
+to improve separation of concerns and allow the core library to be used without CLI dependencies.
+
+- **Core library** (`midi_diff`): Contains note extraction, diff logic, and data models. Has minimal dependencies (`mido` only).
+- **CLI sub-package** (`midi_diff.cli`): Contains argument parsing, version reporting, debug info, and environment checks. Requires `rich` for enhanced output.
+
+**Migration note:** If you were importing from `midi_diff.cli` in your code, this continues to work through a backward compatibility shim that will be maintained through the 1.x release series.
+
 ## Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on:
@@ -73,3 +151,14 @@ Notes are considered identical when they share the same:
 - Duration
 
 Velocity is intentionally ignored so that the diff focuses on musical placement.
+
+## API Stability (v1.0.0+)
+
+Starting with version 1.0.0, the following API surface is considered stable and will follow semantic versioning:
+
+- **Core functions**: `midi_diff.core.main()`
+- **Data models**: `midi_diff.midi_utils.NoteEvent`
+- **Utility functions**: `midi_diff.midi_utils.extract_notes()`, `midi_diff.midi_utils.notes_to_midi()`
+- **CLI entry point**: `midi-diff` command and `midi_diff.cli:cli` function
+
+Breaking changes to these APIs will result in a major version bump (2.0.0, etc.).

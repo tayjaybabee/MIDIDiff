@@ -6,25 +6,28 @@ Project:
     MIDIDiff
 
 File: 
-    midi_diff/cli.py
+    midi_diff/cli/version.py
  
 
 Description:
-    Command-line interface for MIDIDiff to compare two MIDI files and output their differences.
+    Version and debug information utilities for the MIDIDiff CLI.
 
 """
-import argparse
 import json
 import os
 import platform
-import sys
 import urllib.error
 import urllib.request
 from importlib import metadata
-from rich.console import Console
-from rich.panel import Panel
-from rich.markdown import Markdown
-from midi_diff.core import main
+
+try:
+    from rich.console import Console
+    from rich.panel import Panel
+    from rich.markdown import Markdown
+    _RICH_AVAILABLE = True
+except ImportError:
+    _RICH_AVAILABLE = False
+
 
 DIST_NAME = "midi-diff"
 PYPI_JSON_URL = f"https://pypi.org/pypi/{DIST_NAME}/json"
@@ -33,27 +36,31 @@ PYPI_JSON_URL = f"https://pypi.org/pypi/{DIST_NAME}/json"
 UPDATE_CHECK_ENV_VAR = "MIDIFF_CHECK_UPDATES"
 UPDATE_CHECK_TRUTHY_VALUES = ("1", "true", "yes")
 
-# Known subcommands and flags for backward compatibility check
-KNOWN_SUBCOMMANDS_AND_FLAGS = frozenset(['diff', 'debug-info', '-V', '--version', '-h', '--help'])
-
-
-class VersionAction(argparse.Action):
-    """Custom argparse action to print version info and exit."""
-    
-    def __call__(self, parser, namespace, values, option_string=None):
-        _print_version_info()
-        parser.exit()
+# Path truncation for debug output
+PATH_TRUNCATE_LENGTH = 100
 
 
 def _get_version() -> str:
+    """Get the installed version of MIDIDiff."""
     return _get_metadata_version(DIST_NAME, "unknown")
 
 
 def _get_dependency_version(name: str) -> str:
+    """Get the installed version of a dependency."""
     return _get_metadata_version(name, "not installed")
 
 
 def _get_metadata_version(name: str, fallback: str) -> str:
+    """
+    Get version from package metadata.
+    
+    Parameters:
+        name: Package name to lookup
+        fallback: Default value if package not found
+        
+    Returns:
+        Version string or fallback value
+    """
     try:
         return metadata.version(name)
     except metadata.PackageNotFoundError:
@@ -61,6 +68,19 @@ def _get_metadata_version(name: str, fallback: str) -> str:
 
 
 def _check_for_update(current_version: str) -> str:
+    """
+    Check PyPI for newer version.
+    
+    NOTE: This function makes a network request to PyPI (https://pypi.org/pypi/midi-diff/json)
+    to check for updates. It is only called when the user explicitly enables update checking
+    via the MIDIFF_CHECK_UPDATES environment variable.
+    
+    Parameters:
+        current_version: Currently installed version
+        
+    Returns:
+        Update status message
+    """
     try:
         with urllib.request.urlopen(PYPI_JSON_URL, timeout=5) as response:
             payload = json.load(response)
@@ -75,7 +95,18 @@ def _check_for_update(current_version: str) -> str:
     return f"Update available: {latest} (installed {current_version})."
 
 
-def _print_version_info() -> None:
+def print_version_info() -> None:
+    """Print formatted version information to the console."""
+    if not _RICH_AVAILABLE:
+        # Fallback to plain text if rich is not available
+        current_version = _get_version()
+        print(f"MIDIDiff version: {current_version}")
+        print(f"Python: {platform.python_version()}")
+        print(f"Platform: {platform.platform()}")
+        print(f"mido: {_get_dependency_version('mido')}")
+        print(f"rich: {_get_dependency_version('rich')}")
+        return
+    
     console = Console()
     current_version = _get_version()
 
@@ -122,8 +153,20 @@ def _print_version_info() -> None:
         )
 
 
-def _print_debug_info() -> None:
+def print_debug_info() -> None:
     """Print comprehensive debug information in Rich Markdown format."""
+    if not _RICH_AVAILABLE:
+        # Fallback to plain text if rich is not available
+        print("MIDIDiff Debug Information")
+        print("=" * 40)
+        print(f"MIDIDiff: {_get_version()}")
+        print(f"Python: {platform.python_version()}")
+        print(f"Platform: {platform.platform()}")
+        print(f"mido: {_get_dependency_version('mido')}")
+        print(f"rich: {_get_dependency_version('rich')}")
+        print(f"Working Directory: {os.getcwd()}")
+        return
+        
     console = Console()
     
     # Get all version information
@@ -138,7 +181,7 @@ def _print_debug_info() -> None:
     
     # Collect relevant environment variables
     path_env = os.getenv('PATH', 'not set')
-    truncated_path = path_env[:100] + '...' if path_env != 'not set' and len(path_env) > 100 else path_env
+    truncated_path = path_env[:PATH_TRUNCATE_LENGTH] + '...' if path_env != 'not set' and len(path_env) > PATH_TRUNCATE_LENGTH else path_env
     
     env_vars = {
         UPDATE_CHECK_ENV_VAR: os.getenv(UPDATE_CHECK_ENV_VAR, 'not set'),
@@ -199,77 +242,4 @@ def _print_debug_info() -> None:
     console.print(panel)
 
 
-def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        prog='midi-diff',
-        description="MIDIDiff - Compare MIDI files and output their differences.",
-    )
-    parser.add_argument(
-        "-V",
-        "--version",
-        action=VersionAction,
-        nargs=0,
-        help=(
-            f"Show version and environment info "
-            f"(set {UPDATE_CHECK_ENV_VAR} to a truthy value like '1', 'true', or 'yes' to check for updates)."
-        ),
-    )
-    
-    # Create subparsers for subcommands
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
-    
-    # diff subcommand (main functionality)
-    diff_parser = subparsers.add_parser(
-        'diff',
-        help='Compare two MIDI files and output their differences'
-    )
-    diff_parser.add_argument("file_a", help="Path to the first MIDI file.")
-    diff_parser.add_argument("file_b", help="Path to the second MIDI file.")
-    diff_parser.add_argument("out_file", help="Path for the diff MIDI output.")
-    
-    # debug-info subcommand (no additional arguments needed)
-    subparsers.add_parser(
-        'debug-info',
-        help='Display diagnostic and environment information'
-    )
-    
-    return parser
-
-
-def cli() -> None:
-    """
-    Command-line interface for MIDIDiff.
-
-    Usage:
-        midi-diff fileA.mid fileB.mid output.mid  (assumes 'diff' subcommand)
-        midi-diff diff fileA.mid fileB.mid output.mid
-        midi-diff debug-info
-        midi-diff --version
-
-    """
-    parser = _build_parser()
-    
-    # Backward compatibility: If first arg isn't a known subcommand/flag,
-    # assume it's a file path and prepend 'diff' to make it work with the new structure.
-    # Argparse will handle validation of the actual arguments.
-    if len(sys.argv) > 1 and sys.argv[1] not in KNOWN_SUBCOMMANDS_AND_FLAGS:
-        sys.argv.insert(1, 'diff')
-    
-    args = parser.parse_args()
-    
-    # Handle subcommands
-    if args.command == 'diff':
-        main(args.file_a, args.file_b, args.out_file)
-    elif args.command == 'debug-info':
-        _print_debug_info()
-    else:
-        # No subcommand provided - show help
-        parser.print_help()
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    cli()
-
-
-__all__ = ["cli"]
+__all__ = ["print_version_info", "print_debug_info"]
