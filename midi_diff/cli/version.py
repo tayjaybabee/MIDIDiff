@@ -71,6 +71,10 @@ def _check_for_update(current_version: str) -> str:
     """
     Check PyPI for newer version.
     
+    NOTE: This function makes a network request to PyPI (https://pypi.org/pypi/midi-diff/json)
+    to check for updates. It is only called when the user explicitly enables update checking
+    via the MIDIFF_CHECK_UPDATES environment variable.
+    
     Parameters:
         current_version: Currently installed version
         

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Subcommand and flag list now dynamically generated from parser configuration instead of hardcoded
+- Added explicit documentation about network requests in update check function
+
 ## [1.0.0] - 2026-01-14
 
 ### Added
