@@ -47,6 +47,34 @@ jobs:
         run: |
           # Check if version line in pyproject.toml was modified
           # Looks for lines starting with +/- and containing "version ="
+          
+          # Define zero SHA constant
+          ZERO_SHA="0000000000000000000000000000000000000000"
+          
+          # Handle first commit to new branch (zero SHA)
+          # We assume version changed to avoid blocking the first release on a new branch.
+          # This is acceptable because initial commits typically include version setup.
+          if [ "${{ github.event.before }}" == "$ZERO_SHA" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "First commit to branch - assuming version changed"
+            exit 0
+          fi
+          
+          # Fetch the before ref if not available (handles shallow clones with push > fetch-depth)
+          if ! git cat-file -e "${{ github.event.before }}" 2>/dev/null; then
+            echo "Fetching before ref ${{ github.event.before }}"
+            git fetch origin "${{ github.event.before }}" --depth=1
+            # If the ref is still not available after fetch, treat it like the zero-SHA case
+            # We assume version changed to avoid blocking releases when refs are unreachable
+            # (e.g., after force pushes or garbage collection). This is acceptable because
+            # unreachable refs indicate non-standard workflows that likely involve intentional changes.
+            if ! git cat-file -e "${{ github.event.before }}" 2>/dev/null; then
+              echo "Before ref ${{ github.event.before }} is unreachable after fetch; assuming version changed"
+              echo "changed=true" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          fi
+          
           git diff "${{ github.event.before }}" "${{ github.sha }}" -- pyproject.toml > version_diff.txt
           if grep -qE "^[+-]version[[:space:]]*=" version_diff.txt; then
             echo "changed=true" >> $GITHUB_OUTPUT
