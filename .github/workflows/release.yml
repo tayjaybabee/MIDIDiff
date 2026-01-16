@@ -147,7 +147,7 @@ jobs:
         if: needs.check-version-change.outputs.is_prerelease == 'false'
         env:
           POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
-        run: poetry publish --no-build
+        run: poetry publish
 
       
       - name: Publish to Test PyPI
@@ -155,4 +155,4 @@ jobs:
         env:
           POETRY_REPOSITORIES_TESTPYPI_URL: https://test.pypi.org/legacy/
           POETRY_PYPI_TOKEN_TESTPYPI: ${{ secrets.TEST_PYPI_TOKEN }}
-        run: poetry publish --no-build -r testpypi
+        run: poetry publish -r testpypi
