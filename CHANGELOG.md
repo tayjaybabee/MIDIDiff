@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Introduced individual command and flag constants (`COMMAND_DIFF`, `COMMAND_DEBUG_INFO`, `FLAG_VERSION_SHORT`, etc.) as single source of truth, referenced by both `build_parser()` and backward compatibility logic to prevent drift
 - `run_cli()` now accepts optional `argv` parameter (type-annotated as `Sequence[str] | None`) for improved testability
 - CLI argument parsing no longer mutates `sys.argv`
+- Added PyPI classifiers to project metadata for clearer package indexing
 
 ### Fixed
 - Release workflow now triggers on the default `master` branch
