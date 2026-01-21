@@ -74,8 +74,9 @@ def _check_for_update(current_version: str) -> str:
     Check PyPI for newer version.
     
     NOTE: This function makes a network request to PyPI (https://pypi.org/pypi/midi-diff/json)
-    to check for updates. It is only called when the user explicitly enables update checking
-    via the MIDIFF_CHECK_UPDATES environment variable.
+    to check for updates. It is called when the user explicitly enables update checking
+    via the MIDIFF_CHECK_UPDATES environment variable, or when using the check-updates
+    or upgrade CLI subcommands.
     
     Parameters:
         current_version: Currently installed version
@@ -344,21 +345,44 @@ def upgrade_package(include_pre: bool = False) -> None:
             check=True,
         )
         
+        # Handle edge case where pip reports the requirement is already satisfied
+        already_satisfied = "Requirement already satisfied" in (result.stdout or "")
+        
         if not _RICH_AVAILABLE:
-            print("\nUpgrade successful!")
-            print(f"Output: {result.stdout}")
+            if already_satisfied:
+                print("\nPackage is already at the latest version. No changes were made.")
+                if result.stdout.strip():
+                    print(f"Output: {result.stdout.strip()}")
+            else:
+                print("\nUpgrade successful!")
+                if result.stdout.strip():
+                    print(f"Output: {result.stdout.strip()}")
         else:
-            console.print("[green]✓ Upgrade successful![/green]")
-            if result.stdout.strip():
-                console.print(f"[dim]{result.stdout.strip()}[/dim]")
+            if already_satisfied:
+                console.print("[green]✓ Package is already at the latest version. No changes were made.[/green]")
+                if result.stdout.strip():
+                    console.print(f"[dim]{result.stdout.strip()}[/dim]")
+            else:
+                console.print("[green]✓ Upgrade successful![/green]")
+                if result.stdout.strip():
+                    console.print(f"[dim]{result.stdout.strip()}[/dim]")
         
     except subprocess.CalledProcessError as e:
-        if not _RICH_AVAILABLE:
-            print(f"\nUpgrade failed: {e}")
-            if e.stderr:
-                print(f"Error: {e.stderr}")
+        # Parse stderr for more helpful error messages
+        error_msg = e.stderr or str(e)
+        if "Permission denied" in error_msg or "PermissionError" in error_msg:
+            helpful_msg = "Permission denied. Try running with appropriate permissions or use a virtual environment."
+        elif "Network" in error_msg or "ConnectionError" in error_msg or "URLError" in error_msg:
+            helpful_msg = "Network error. Please check your internet connection and try again."
         else:
-            console.print(f"[red]✗ Upgrade failed: {e}[/red]")
+            helpful_msg = f"Upgrade failed: {e}"
+        
+        if not _RICH_AVAILABLE:
+            print(f"\n{helpful_msg}")
+            if e.stderr:
+                print(f"Error details: {e.stderr}")
+        else:
+            console.print(f"[red]✗ {helpful_msg}[/red]")
             if e.stderr:
                 console.print(f"[red]{e.stderr}[/red]")
         sys.exit(1)

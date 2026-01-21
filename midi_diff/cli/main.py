@@ -155,7 +155,7 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
     elif args.command == COMMAND_CHECK_UPDATES:
         check_for_updates_command()
     elif args.command == COMMAND_UPGRADE:
-        upgrade_package(include_pre=getattr(args, 'pre', False))
+        upgrade_package(include_pre=args.pre)
     else:
         # No subcommand provided - show help
         parser.print_help()
