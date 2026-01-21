@@ -105,6 +105,14 @@ def print_version_info() -> None:
         print(f"Platform: {platform.platform()}")
         print(f"mido: {_get_dependency_version('mido')}")
         print(f"rich: {_get_dependency_version('rich')}")
+        
+        # Check for updates if explicitly enabled via environment variable
+        if os.getenv(UPDATE_CHECK_ENV_VAR, '').lower() in UPDATE_CHECK_TRUTHY_VALUES:
+            update_msg = _check_for_update(current_version)
+            print(update_msg)
+        else:
+            print(f"Update check disabled (set {UPDATE_CHECK_ENV_VAR}=1 to enable).")
+        
         return
     
     console = Console()

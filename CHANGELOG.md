@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Release workflow now triggers on the default `master` branch
+- Version flag (`-V`/`--version`) now checks for updates when `MIDIFF_CHECK_UPDATES` environment variable is set, even when Rich library is not installed
 
 ### Removed
 - `midi_diff/cli.py` backward compatibility shim (conflicts with new package structure)
