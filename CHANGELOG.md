@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- GitHub Actions workflow for automated testing across Python 3.11, 3.12, and 3.13 on Ubuntu, Windows, and macOS
+
 ## [1.0.1] - 2026-01-21
 
 ### Changed

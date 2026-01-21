@@ -1,0 +1,60 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - develop
+  pull_request:
+    branches:
+      - master
+      - main
+      - develop
+
+jobs:
+  test:
+    name: Test Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.11', '3.12', '3.13']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.8.0
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      
+      - name: Install dependencies
+        run: poetry install --no-interaction --extras cli
+      
+      - name: Build package
+        run: poetry build
+      
+      - name: Test CLI installation
+        run: |
+          poetry run midi-diff --version
+      
+      - name: Test package import
+        run: |
+          poetry run python -c "from midi_diff import __version__; print(f'Successfully imported midi_diff v{__version__}')"
+      
+      - name: Test CLI help
+        run: |
+          poetry run midi-diff --help
+      
+      - name: Test debug-info subcommand
+        run: |
+          poetry run midi-diff debug-info
