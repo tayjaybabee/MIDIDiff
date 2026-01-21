@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-01-21
+
 ### Changed
 - Replaced dynamic subcommand/flag extraction with explicit `KNOWN_COMMANDS` and `KNOWN_FLAGS` constants for better maintainability
 - Introduced individual command and flag constants (`COMMAND_DIFF`, `COMMAND_DEBUG_INFO`, `FLAG_VERSION_SHORT`, etc.) as single source of truth, referenced by both `build_parser()` and backward compatibility logic to prevent drift
