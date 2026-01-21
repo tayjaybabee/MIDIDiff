@@ -17,13 +17,21 @@ import argparse
 import sys
 from typing import Sequence
 from midi_diff.core import main as core_main
-from midi_diff.cli.version import print_version_info, print_debug_info, UPDATE_CHECK_ENV_VAR
+from midi_diff.cli.version import (
+    print_version_info,
+    print_debug_info,
+    check_for_updates_command,
+    upgrade_package,
+    UPDATE_CHECK_ENV_VAR,
+)
 
 
 # Subcommand names - single source of truth for CLI commands
 # These are referenced by both build_parser() and backward compatibility logic
 COMMAND_DIFF = 'diff'
 COMMAND_DEBUG_INFO = 'debug-info'
+COMMAND_CHECK_UPDATES = 'check-updates'
+COMMAND_UPGRADE = 'upgrade'
 
 # Flag definitions - single source of truth for CLI flags
 # These are referenced by both build_parser() and backward compatibility logic
@@ -35,7 +43,7 @@ FLAG_HELP_LONG = '--help'
 # Known subcommands and flags for backward compatibility.
 # These sets are derived from the constants above to ensure they stay
 # synchronized with the parser configuration in build_parser().
-KNOWN_COMMANDS = frozenset({COMMAND_DIFF, COMMAND_DEBUG_INFO})
+KNOWN_COMMANDS = frozenset({COMMAND_DIFF, COMMAND_DEBUG_INFO, COMMAND_CHECK_UPDATES, COMMAND_UPGRADE})
 KNOWN_FLAGS = frozenset({FLAG_VERSION_SHORT, FLAG_VERSION_LONG, FLAG_HELP_SHORT, FLAG_HELP_LONG})
 
 
@@ -87,6 +95,23 @@ def build_parser() -> argparse.ArgumentParser:
         help='Display diagnostic and environment information'
     )
     
+    # check-updates subcommand (explicitly check for updates)
+    subparsers.add_parser(
+        COMMAND_CHECK_UPDATES,
+        help='Check for available updates from PyPI'
+    )
+    
+    # upgrade subcommand (upgrade the package)
+    upgrade_parser = subparsers.add_parser(
+        COMMAND_UPGRADE,
+        help='Upgrade midi-diff to the latest version from PyPI'
+    )
+    upgrade_parser.add_argument(
+        '--pre',
+        action='store_true',
+        help='Include pre-release versions in the upgrade'
+    )
+    
     return parser
 
 
@@ -127,6 +152,10 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
         core_main(args.file_a, args.file_b, args.out_file)
     elif args.command == COMMAND_DEBUG_INFO:
         print_debug_info()
+    elif args.command == COMMAND_CHECK_UPDATES:
+        check_for_updates_command()
+    elif args.command == COMMAND_UPGRADE:
+        upgrade_package(include_pre=getattr(args, 'pre', False))
     else:
         # No subcommand provided - show help
         parser.print_help()

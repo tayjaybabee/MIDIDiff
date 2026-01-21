@@ -16,6 +16,8 @@ Description:
 import json
 import os
 import platform
+import subprocess
+import sys
 import urllib.error
 import urllib.request
 from importlib import metadata
@@ -250,4 +252,122 @@ def print_debug_info() -> None:
     console.print(panel)
 
 
-__all__ = ["print_version_info", "print_debug_info"]
+def check_for_updates_command() -> None:
+    """
+    Explicitly check for updates and display the result.
+    
+    This is called by the 'check-updates' subcommand.
+    """
+    current_version = _get_version()
+    
+    if not _RICH_AVAILABLE:
+        print(f"MIDIDiff version: {current_version}")
+        print("Checking for updates...")
+        update_msg = _check_for_update(current_version)
+        print(update_msg)
+        
+        if "Update available" in update_msg:
+            print("\nTo upgrade, run: midi-diff upgrade")
+        return
+    
+    console = Console()
+    console.print(f"[bold]MIDIDiff version:[/bold] {current_version}")
+    console.print("[dim]Checking for updates...[/dim]")
+    
+    update_msg = _check_for_update(current_version)
+    
+    if 'Update available' in update_msg:
+        console.print(f'[yellow]⚠ {update_msg}[/yellow]')
+        console.print("\n[dim]To upgrade, run:[/dim] [cyan]midi-diff upgrade[/cyan]")
+    elif 'Up to date' in update_msg:
+        console.print(f'[green]✓ {update_msg}[/green]')
+    else:
+        console.print(f'[red]{update_msg}[/red]')
+
+
+def upgrade_package(include_pre: bool = False) -> None:
+    """
+    Upgrade the midi-diff package using pip.
+    
+    Parameters:
+        include_pre: Whether to include pre-release versions
+    """
+    current_version = _get_version()
+    
+    if not _RICH_AVAILABLE:
+        print(f"Current version: {current_version}")
+        print("Checking for updates...")
+        update_msg = _check_for_update(current_version)
+        print(update_msg)
+        
+        if "Up to date" in update_msg:
+            print("No upgrade needed.")
+            return
+        
+        if "Update check failed" in update_msg:
+            print("Cannot proceed with upgrade due to update check failure.")
+            return
+        
+        print("\nUpgrading midi-diff...")
+    else:
+        console = Console()
+        console.print(f"[bold]Current version:[/bold] {current_version}")
+        console.print("[dim]Checking for updates...[/dim]")
+        
+        update_msg = _check_for_update(current_version)
+        
+        if "Up to date" in update_msg:
+            console.print(f'[green]✓ {update_msg}[/green]')
+            console.print("[dim]No upgrade needed.[/dim]")
+            return
+        
+        if "Update check failed" in update_msg:
+            console.print(f'[red]{update_msg}[/red]')
+            console.print("[red]Cannot proceed with upgrade due to update check failure.[/red]")
+            return
+        
+        console.print(f'[yellow]⚠ {update_msg}[/yellow]')
+        console.print("\n[dim]Upgrading midi-diff...[/dim]")
+    
+    # Build pip command
+    pip_cmd = [sys.executable, "-m", "pip", "install", "--upgrade"]
+    if include_pre:
+        pip_cmd.append("--pre")
+    pip_cmd.append(DIST_NAME)
+    
+    try:
+        # Run pip upgrade
+        result = subprocess.run(
+            pip_cmd,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        
+        if not _RICH_AVAILABLE:
+            print("\nUpgrade successful!")
+            print(f"Output: {result.stdout}")
+        else:
+            console.print("[green]✓ Upgrade successful![/green]")
+            if result.stdout.strip():
+                console.print(f"[dim]{result.stdout.strip()}[/dim]")
+        
+    except subprocess.CalledProcessError as e:
+        if not _RICH_AVAILABLE:
+            print(f"\nUpgrade failed: {e}")
+            if e.stderr:
+                print(f"Error: {e.stderr}")
+        else:
+            console.print(f"[red]✗ Upgrade failed: {e}[/red]")
+            if e.stderr:
+                console.print(f"[red]{e.stderr}[/red]")
+        sys.exit(1)
+    except Exception as e:
+        if not _RICH_AVAILABLE:
+            print(f"\nUnexpected error during upgrade: {e}")
+        else:
+            console.print(f"[red]✗ Unexpected error during upgrade: {e}[/red]")
+        sys.exit(1)
+
+
+__all__ = ["print_version_info", "print_debug_info", "check_for_updates_command", "upgrade_package"]
