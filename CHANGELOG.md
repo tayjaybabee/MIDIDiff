@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Runs on push/PR to `master`, `main`, and `develop` branches
   - Uses `fail-fast: false` to ensure all platform/version combinations are tested
 
+### Fixed
+- Windows CI build failures by switching from `snok/install-poetry` action to direct `pip install poetry` approach for better cross-platform compatibility
+
 ## [1.0.1] - 2026-01-21
 
 ### Changed
