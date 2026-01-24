@@ -11,12 +11,16 @@ File:
 
 Description:
     Core functionality for comparing two MIDI files and generating a diff MIDI file.
-
+ 
 """
+from __future__ import annotations
+
 import contextlib
-import mido
-from typing import Union
 from pathlib import Path
+from typing import Union
+
+import mido
+
 from midi_diff.midi_utils import NoteEvent, extract_notes, notes_to_midi
 
 

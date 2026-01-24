@@ -7,12 +7,14 @@ Project:
 
 File: 
     midi_diff/cli/version.py
- 
+  
 
 Description:
     Version and debug information utilities for the MIDIDiff CLI.
 
 """
+from __future__ import annotations
+
 import json
 import os
 import platform
@@ -21,6 +23,7 @@ import sys
 import urllib.error
 import urllib.request
 from importlib import metadata
+from typing import Final
 
 try:
     from rich.console import Console
@@ -31,15 +34,15 @@ except ImportError:
     _RICH_AVAILABLE = False
 
 
-DIST_NAME: str = "midi-diff"
-PYPI_JSON_URL: str = f"https://pypi.org/pypi/{DIST_NAME}/json"
+DIST_NAME: Final[str] = "midi-diff"
+PYPI_JSON_URL: Final[str] = f"https://pypi.org/pypi/{DIST_NAME}/json"
 
 # Update check configuration
-UPDATE_CHECK_ENV_VAR: str = "MIDIFF_CHECK_UPDATES"
-UPDATE_CHECK_TRUTHY_VALUES: tuple[str, ...] = ("1", "true", "yes")
+UPDATE_CHECK_ENV_VAR: Final[str] = "MIDIFF_CHECK_UPDATES"
+UPDATE_CHECK_TRUTHY_VALUES: Final[tuple[str, ...]] = ("1", "true", "yes")
 
 # Path truncation for debug output
-PATH_TRUNCATE_LENGTH: int = 100
+PATH_TRUNCATE_LENGTH: Final[int] = 100
 
 
 def _get_version() -> str:
