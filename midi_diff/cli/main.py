@@ -15,7 +15,7 @@ Description:
 """
 import argparse
 import sys
-from typing import Sequence
+from typing import Final, Sequence
 from midi_diff.core import main as core_main
 from midi_diff.cli.version import (
     print_version_info,
@@ -28,29 +28,35 @@ from midi_diff.cli.version import (
 
 # Subcommand names - single source of truth for CLI commands
 # These are referenced by both build_parser() and backward compatibility logic
-COMMAND_DIFF = 'diff'
-COMMAND_DEBUG_INFO = 'debug-info'
-COMMAND_CHECK_UPDATES = 'check-updates'
-COMMAND_UPGRADE = 'upgrade'
+COMMAND_DIFF: Final[str] = 'diff'
+COMMAND_DEBUG_INFO: Final[str] = 'debug-info'
+COMMAND_CHECK_UPDATES: Final[str] = 'check-updates'
+COMMAND_UPGRADE: Final[str] = 'upgrade'
 
 # Flag definitions - single source of truth for CLI flags
 # These are referenced by both build_parser() and backward compatibility logic
-FLAG_VERSION_SHORT = '-V'
-FLAG_VERSION_LONG = '--version'
-FLAG_HELP_SHORT = '-h'
-FLAG_HELP_LONG = '--help'
+FLAG_VERSION_SHORT: Final[str] = '-V'
+FLAG_VERSION_LONG: Final[str] = '--version'
+FLAG_HELP_SHORT: Final[str] = '-h'
+FLAG_HELP_LONG: Final[str] = '--help'
 
 # Known subcommands and flags for backward compatibility.
 # These sets are derived from the constants above to ensure they stay
 # synchronized with the parser configuration in build_parser().
-KNOWN_COMMANDS = frozenset({COMMAND_DIFF, COMMAND_DEBUG_INFO, COMMAND_CHECK_UPDATES, COMMAND_UPGRADE})
-KNOWN_FLAGS = frozenset({FLAG_VERSION_SHORT, FLAG_VERSION_LONG, FLAG_HELP_SHORT, FLAG_HELP_LONG})
+KNOWN_COMMANDS: Final[frozenset[str]] = frozenset({COMMAND_DIFF, COMMAND_DEBUG_INFO, COMMAND_CHECK_UPDATES, COMMAND_UPGRADE})
+KNOWN_FLAGS: Final[frozenset[str]] = frozenset({FLAG_VERSION_SHORT, FLAG_VERSION_LONG, FLAG_HELP_SHORT, FLAG_HELP_LONG})
 
 
 class VersionAction(argparse.Action):
     """Custom argparse action to print version info and exit."""
     
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str | Sequence[str] | None,
+        option_string: str | None = None,
+    ) -> None:
         print_version_info()
         parser.exit()
 
@@ -78,7 +84,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     
     # Create subparsers for subcommands
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+    subparsers: argparse._SubParsersAction[argparse.ArgumentParser] = parser.add_subparsers(  # type: ignore[attr-defined]
+        dest='command',
+        help='Available commands',
+    )
     
     # diff subcommand (main functionality)
     diff_parser = subparsers.add_parser(
