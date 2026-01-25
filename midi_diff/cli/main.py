@@ -15,6 +15,7 @@ Description:
 """
 import argparse
 import sys
+import webbrowser
 from typing import Final, Sequence
 from midi_diff.core import main as core_main
 from midi_diff.cli.version import (
@@ -32,6 +33,7 @@ COMMAND_DIFF: Final[str] = 'diff'
 COMMAND_DEBUG_INFO: Final[str] = 'debug-info'
 COMMAND_CHECK_UPDATES: Final[str] = 'check-updates'
 COMMAND_UPGRADE: Final[str] = 'upgrade'
+COMMAND_DOCS: Final[str] = 'docs'
 
 # Flag definitions - single source of truth for CLI flags
 # These are referenced by both build_parser() and backward compatibility logic
@@ -43,7 +45,7 @@ FLAG_HELP_LONG: Final[str] = '--help'
 # Known subcommands and flags for backward compatibility.
 # These sets are derived from the constants above to ensure they stay
 # synchronized with the parser configuration in build_parser().
-KNOWN_COMMANDS: Final[frozenset[str]] = frozenset({COMMAND_DIFF, COMMAND_DEBUG_INFO, COMMAND_CHECK_UPDATES, COMMAND_UPGRADE})
+KNOWN_COMMANDS: Final[frozenset[str]] = frozenset({COMMAND_DIFF, COMMAND_DEBUG_INFO, COMMAND_CHECK_UPDATES, COMMAND_UPGRADE, COMMAND_DOCS})
 KNOWN_FLAGS: Final[frozenset[str]] = frozenset({FLAG_VERSION_SHORT, FLAG_VERSION_LONG, FLAG_HELP_SHORT, FLAG_HELP_LONG})
 
 
@@ -59,6 +61,18 @@ class VersionAction(argparse.Action):
     ) -> None:
         print_version_info()
         parser.exit()
+
+
+def open_documentation() -> None:
+    """
+    Open MIDIDiff documentation in the user's default web browser.
+    
+    Opens http://mididiff.readthedocs.io/en/latest/ in the system's
+    default web browser.
+    """
+    url = "http://mididiff.readthedocs.io/en/latest/"
+    print(f"Opening documentation at {url}")
+    webbrowser.open(url)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -121,6 +135,12 @@ def build_parser() -> argparse.ArgumentParser:
         help='Include pre-release versions in the upgrade'
     )
     
+    # docs subcommand (open documentation in browser)
+    subparsers.add_parser(
+        COMMAND_DOCS,
+        help='Open MIDIDiff documentation in your default web browser'
+    )
+    
     return parser
 
 
@@ -165,6 +185,8 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
         check_for_updates_command()
     elif args.command == COMMAND_UPGRADE:
         upgrade_package(include_pre=args.pre)
+    elif args.command == COMMAND_DOCS:
+        open_documentation()
     else:
         # No subcommand provided - show help
         parser.print_help()

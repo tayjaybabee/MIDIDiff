@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "midi-diff"
-version = "1.0.2"
+version = "1.0.3"
 description = "Output the differences between two MIDI files, using the command-line."
 authors = ["Taylor-Jayde Blackstone <t.blackstone@inspyre.tech>"]
 license = "MIT"

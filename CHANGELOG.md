@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Code-blocks with syntax highlighting
   - Cross-references and intersphinx support for Python and mido documentation
   - `.readthedocs.yaml` configuration for automatic RTD builds
+- `docs` subcommand to open MIDIDiff documentation (http://mididiff.readthedocs.io/en/latest/) in the user's default web browser
 
 ### Changed
 - Updated README.md Python version requirement from 3.13+ to 3.11+ to match pyproject.toml
