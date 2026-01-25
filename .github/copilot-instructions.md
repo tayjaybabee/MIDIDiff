@@ -120,11 +120,43 @@ MIDIDiff/
 
 ## Architecture & Code Organization
 
+### Module Separation of Concerns
+
+**CRITICAL:** This project follows strict module separation of concerns. When adding new functionality:
+
+1. **Create dedicated modules for distinct concerns:**
+   - Version-related functions → `midi_diff/cli/version.py`
+   - Documentation-related functions → `midi_diff/cli/docs.py`
+   - Main CLI logic and parsing → `midi_diff/cli/main.py`
+   - Core MIDI diff logic → `midi_diff/core.py`
+   - MIDI utilities and data models → `midi_diff/midi_utils.py`
+
+2. **DO NOT add unrelated functionality to existing modules:**
+   - ❌ Don't add documentation functions to `main.py` or `version.py`
+   - ❌ Don't add version functions to `docs.py` or `main.py`
+   - ✅ Create a new module for each distinct area of concern
+   - ✅ Keep modules focused on a single responsibility
+
+3. **Follow the existing pattern:**
+   - Look at how `version.py` separates version-related concerns from main CLI logic
+   - Look at how `docs.py` separates documentation concerns from main CLI logic
+   - Each module should have a clear, single purpose
+   - Related constants should live in the same module as the functions that use them
+
+4. **Import organization:**
+   - Main entry points (`cli/__init__.py`, `cli/main.py`) should import and orchestrate
+   - Specialized modules should be self-contained with minimal dependencies
+   - Use `__all__` to explicitly export public API from each module
+
+**Example:**
+When adding a new "stats" feature, create `midi_diff/cli/stats.py` rather than adding functions to `main.py` or an unrelated module.
+
 ### Design Patterns
 - **Immutable data model:** `NoteEvent` uses `@dataclass(frozen=True, slots=True)`
 - **Set-based diffing:** Uses Python sets for efficient note comparison
 - **Path safety:** Auto-increments output filenames to prevent overwrites
 - **Error handling:** Graceful error messages, no exceptions raised to caller
+- **Module separation:** Each module has a single, well-defined responsibility
 
 ### Note Comparison Logic
 - Notes are compared by `(pitch, start, duration)` - **velocity is excluded**
@@ -212,6 +244,10 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md#changelog-requirements) for complete de
 
 - **ALWAYS verify Python 3.13+ is available before attempting `poetry install`**
 - **ALWAYS update CHANGELOG.md** when making user-facing changes (new features, bug fixes, breaking changes, etc.)
+- **ALWAYS follow module separation of concerns** - see "Module Separation of Concerns" section above
+  - Create dedicated modules for distinct functionality (e.g., `docs.py` for docs, `version.py` for version)
+  - Don't add unrelated functions to existing modules
+  - Keep each module focused on a single responsibility
 - **DO NOT commit** `poetry.lock`, `dist/`, or `__pycache__/` (all gitignored)
 - **DO NOT modify** Python version requirement in `pyproject.toml` without explicit instruction
 - **The CLI has no --help flag** - running without args shows usage

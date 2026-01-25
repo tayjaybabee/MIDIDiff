@@ -1,0 +1,62 @@
+# Sourcery Configuration for MIDIDiff
+# https://docs.sourcery.ai/
+
+python_version: "3.11"  # Minimum supported version
+
+rules:
+  - id: maintain-module-separation
+    description: Enforce module separation of concerns
+    pattern: |
+      Each module should have a single, well-defined responsibility.
+      - Version functions belong in cli/version.py
+      - Documentation functions belong in cli/docs.py
+      - CLI logic belongs in cli/main.py
+      - Core diff logic belongs in core.py
+      - MIDI utilities belong in midi_utils.py
+    
+  - id: require-type-hints
+    description: All functions should have type hints
+    pattern: Ensure all function parameters and return types are annotated
+    
+  - id: prefer-pathlib
+    description: Use pathlib.Path instead of os.path
+    pattern: Prefer pathlib.Path for all file operations
+
+refactor:
+  skip_default_rules: false
+  
+github:
+  request_review: author
+  sourcery_branch: sourcery/{base_branch}
+
+# Clone detection settings
+clone_detection:
+  min_lines: 5
+  min_duplicates: 2
+  identical_clones_only: false
+
+# Custom rules for code quality
+metrics:
+  quality_threshold: 75.0
+
+# Ignore patterns
+ignore:
+  - dist/
+  - build/
+  - __pycache__/
+  - "*.pyc"
+  - .venv/
+  - .git/
+  - docs/_build/
+
+# Project-specific settings
+project_settings:
+  module_separation:
+    enabled: true
+    cli_modules:
+      - version.py: "Version and update checking functionality"
+      - docs.py: "Documentation opening functionality"
+      - main.py: "CLI argument parsing and command routing"
+    core_modules:
+      - core.py: "Core MIDI diff logic"
+      - midi_utils.py: "MIDI file parsing and NoteEvent data model"
