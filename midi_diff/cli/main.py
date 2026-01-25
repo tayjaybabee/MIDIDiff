@@ -24,6 +24,7 @@ from midi_diff.cli.version import (
     upgrade_package,
     UPDATE_CHECK_ENV_VAR,
 )
+from midi_diff.cli.docs import open_documentation
 
 
 # Subcommand names - single source of truth for CLI commands
@@ -32,6 +33,7 @@ COMMAND_DIFF: Final[str] = 'diff'
 COMMAND_DEBUG_INFO: Final[str] = 'debug-info'
 COMMAND_CHECK_UPDATES: Final[str] = 'check-updates'
 COMMAND_UPGRADE: Final[str] = 'upgrade'
+COMMAND_DOCS: Final[str] = 'docs'
 
 # Flag definitions - single source of truth for CLI flags
 # These are referenced by both build_parser() and backward compatibility logic
@@ -43,7 +45,7 @@ FLAG_HELP_LONG: Final[str] = '--help'
 # Known subcommands and flags for backward compatibility.
 # These sets are derived from the constants above to ensure they stay
 # synchronized with the parser configuration in build_parser().
-KNOWN_COMMANDS: Final[frozenset[str]] = frozenset({COMMAND_DIFF, COMMAND_DEBUG_INFO, COMMAND_CHECK_UPDATES, COMMAND_UPGRADE})
+KNOWN_COMMANDS: Final[frozenset[str]] = frozenset({COMMAND_DIFF, COMMAND_DEBUG_INFO, COMMAND_CHECK_UPDATES, COMMAND_UPGRADE, COMMAND_DOCS})
 KNOWN_FLAGS: Final[frozenset[str]] = frozenset({FLAG_VERSION_SHORT, FLAG_VERSION_LONG, FLAG_HELP_SHORT, FLAG_HELP_LONG})
 
 
@@ -121,6 +123,12 @@ def build_parser() -> argparse.ArgumentParser:
         help='Include pre-release versions in the upgrade'
     )
     
+    # docs subcommand (open documentation in browser)
+    subparsers.add_parser(
+        COMMAND_DOCS,
+        help='Open MIDIDiff documentation in your default web browser'
+    )
+    
     return parser
 
 
@@ -165,6 +173,8 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
         check_for_updates_command()
     elif args.command == COMMAND_UPGRADE:
         upgrade_package(include_pre=args.pre)
+    elif args.command == COMMAND_DOCS:
+        open_documentation()
     else:
         # No subcommand provided - show help
         parser.print_help()

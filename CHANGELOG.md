@@ -14,6 +14,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Code-blocks with syntax highlighting
   - Cross-references and intersphinx support for Python and mido documentation
   - `.readthedocs.yaml` configuration for automatic RTD builds
+- `docs` subcommand to open MIDIDiff documentation (https://mididiff.readthedocs.io/en/latest/) in the user's default web browser
+  - Opens documentation in default browser
+  - Graceful error handling with manual URL fallback
+  - Follows module separation pattern with dedicated `cli/docs.py` module
+- AI assistant instruction files for better code quality and consistency
+  - Updated AGENTS.md with module separation of concerns guidelines
+  - Updated .github/copilot-instructions.md with module separation guidelines
+  - New SOURCERY.md with comprehensive Sourcery AI instructions
+  - New .sourcery.yaml configuration file
+- Status badges to README.md
+  - PyPI version badge
+  - Python versions badge (3.11, 3.12, 3.13)
+  - MIT license badge
+  - GitHub Actions test status badge
+  - Read the Docs documentation status badge
 
 ### Changed
 - Updated README.md Python version requirement from 3.13+ to 3.11+ to match pyproject.toml
