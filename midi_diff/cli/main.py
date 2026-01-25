@@ -15,7 +15,6 @@ Description:
 """
 import argparse
 import sys
-import webbrowser
 from typing import Final, Sequence
 from midi_diff.core import main as core_main
 from midi_diff.cli.version import (
@@ -25,6 +24,7 @@ from midi_diff.cli.version import (
     upgrade_package,
     UPDATE_CHECK_ENV_VAR,
 )
+from midi_diff.cli.docs import open_documentation
 
 
 # Subcommand names - single source of truth for CLI commands
@@ -34,9 +34,6 @@ COMMAND_DEBUG_INFO: Final[str] = 'debug-info'
 COMMAND_CHECK_UPDATES: Final[str] = 'check-updates'
 COMMAND_UPGRADE: Final[str] = 'upgrade'
 COMMAND_DOCS: Final[str] = 'docs'
-
-# Documentation URL
-DOCUMENTATION_URL: Final[str] = "https://mididiff.readthedocs.io/en/latest/"
 
 # Flag definitions - single source of truth for CLI flags
 # These are referenced by both build_parser() and backward compatibility logic
@@ -64,23 +61,6 @@ class VersionAction(argparse.Action):
     ) -> None:
         print_version_info()
         parser.exit()
-
-
-def open_documentation() -> None:
-    """
-    Open MIDIDiff documentation in the user's default web browser.
-    
-    Opens https://mididiff.readthedocs.io/en/latest/ in the system's
-    default web browser. If the browser cannot be opened, prints an error
-    message with the URL so the user can manually navigate to it.
-    """
-    print(f"Opening documentation at {DOCUMENTATION_URL}")
-    try:
-        webbrowser.open(DOCUMENTATION_URL)
-    except Exception as e:
-        print(f"Warning: Unable to open browser automatically: {e}")
-        print(f"Please visit the documentation manually at: {DOCUMENTATION_URL}")
-        sys.exit(1)
 
 
 def build_parser() -> argparse.ArgumentParser:
