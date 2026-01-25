@@ -1,5 +1,11 @@
 # MIDIDiff
 
+[![PyPI version](https://badge.fury.io/py/midi-diff.svg)](https://badge.fury.io/py/midi-diff)
+[![Python Versions](https://img.shields.io/pypi/pyversions/midi-diff.svg)](https://pypi.org/project/midi-diff/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tests](https://github.com/tayjaybabee/MIDIDiff/actions/workflows/test.yml/badge.svg)](https://github.com/tayjaybabee/MIDIDiff/actions/workflows/test.yml)
+[![Documentation Status](https://readthedocs.org/projects/mididiff/badge/?version=latest)](https://mididiff.readthedocs.io/en/latest/?badge=latest)
+
 MIDIDiff compares two MIDI files and produces a third MIDI file containing the
 notes that are present in only one of the inputs. Notes are matched by pitch,
 start tick, and duration; velocity differences are ignored.

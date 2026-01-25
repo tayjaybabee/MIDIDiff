@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Updated .github/copilot-instructions.md with module separation guidelines
   - New SOURCERY.md with comprehensive Sourcery AI instructions
   - New .sourcery.yaml configuration file
+- Status badges to README.md
+  - PyPI version badge
+  - Python versions badge (3.11, 3.12, 3.13)
+  - MIT license badge
+  - GitHub Actions test status badge
+  - Read the Docs documentation status badge
 
 ### Changed
 - Updated README.md Python version requirement from 3.13+ to 3.11+ to match pyproject.toml
