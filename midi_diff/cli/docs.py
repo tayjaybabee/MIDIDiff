@@ -31,10 +31,17 @@ def open_documentation() -> None:
     """
     print(f"Opening documentation at {DOCUMENTATION_URL}")
     try:
-        webbrowser.open(DOCUMENTATION_URL)
+        opened = webbrowser.open(DOCUMENTATION_URL)
     except Exception as e:
         print(f"Warning: Unable to open browser automatically: {e}")
         print(f"Please visit the documentation manually at: {DOCUMENTATION_URL}")
+    else:
+        if not opened:
+            print(
+                "Warning: Unable to open browser automatically "
+                "(webbrowser.open() returned False)."
+            )
+            print(f"Please visit the documentation manually at: {DOCUMENTATION_URL}")
 
 
 __all__ = ["open_documentation", "DOCUMENTATION_URL"]
