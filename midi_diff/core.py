@@ -11,13 +11,17 @@ File:
 
 Description:
     Core functionality for comparing two MIDI files and generating a diff MIDI file.
-
+ 
 """
+from __future__ import annotations
+
 import contextlib
-import mido
-from midi_diff.midi_utils import extract_notes, notes_to_midi
-from typing import Union
 from pathlib import Path
+from typing import Union
+
+import mido
+
+from midi_diff.midi_utils import NoteEvent, extract_notes, notes_to_midi
 
 
 def _determine_out_path(out_file: Union[str, Path]) -> Path:
@@ -77,25 +81,25 @@ def main(file_a: Union[str, Path], file_b: Union[str, Path], out_file: Union[str
         return
 
     try:
-        mid_a = mido.MidiFile(str(file_a))
-        mid_b = mido.MidiFile(str(file_b))
+        mid_a: mido.MidiFile = mido.MidiFile(str(file_a))
+        mid_b: mido.MidiFile = mido.MidiFile(str(file_b))
     except Exception as e:
         print(f"Failed to load MIDI files: {e}")
         return
 
-    notes_a = set(extract_notes(mid_a))
-    notes_b = set(extract_notes(mid_b))
+    notes_a: set[NoteEvent] = set(extract_notes(mid_a))
+    notes_b: set[NoteEvent] = set(extract_notes(mid_b))
 
-    only_in_a = notes_a - notes_b
-    only_in_b = notes_b - notes_a
+    only_in_a: set[NoteEvent] = notes_a - notes_b
+    only_in_b: set[NoteEvent] = notes_b - notes_a
 
     print(f"Notes only in A: {len(only_in_a)}")
     print(f"Notes only in B: {len(only_in_b)}")
 
-    diff_notes = list(only_in_a.union(only_in_b))
+    diff_notes: list[NoteEvent] = list(only_in_a.union(only_in_b))
 
     out_path = _determine_out_path(out_file)
-    diff_mid = notes_to_midi(diff_notes, ticks_per_beat=mid_a.ticks_per_beat)
+    diff_mid: mido.MidiFile = notes_to_midi(diff_notes, ticks_per_beat=mid_a.ticks_per_beat)
     try:
         diff_mid.save(str(out_path))
     except Exception as e:

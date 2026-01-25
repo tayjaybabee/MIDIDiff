@@ -7,12 +7,14 @@ Project:
 
 File: 
     midi_diff/cli/version.py
- 
+  
 
 Description:
     Version and debug information utilities for the MIDIDiff CLI.
 
 """
+from __future__ import annotations
+
 import json
 import os
 import platform
@@ -21,25 +23,26 @@ import sys
 import urllib.error
 import urllib.request
 from importlib import metadata
+from typing import Final
 
 try:
     from rich.console import Console
     from rich.panel import Panel
     from rich.markdown import Markdown
-    _RICH_AVAILABLE = True
+    _RICH_AVAILABLE: bool = True
 except ImportError:
     _RICH_AVAILABLE = False
 
 
-DIST_NAME = "midi-diff"
-PYPI_JSON_URL = f"https://pypi.org/pypi/{DIST_NAME}/json"
+DIST_NAME: Final[str] = "midi-diff"
+PYPI_JSON_URL: Final[str] = f"https://pypi.org/pypi/{DIST_NAME}/json"
 
 # Update check configuration
-UPDATE_CHECK_ENV_VAR = "MIDIFF_CHECK_UPDATES"
-UPDATE_CHECK_TRUTHY_VALUES = ("1", "true", "yes")
+UPDATE_CHECK_ENV_VAR: Final[str] = "MIDIFF_CHECK_UPDATES"
+UPDATE_CHECK_TRUTHY_VALUES: Final[tuple[str, ...]] = ("1", "true", "yes")
 
 # Path truncation for debug output
-PATH_TRUNCATE_LENGTH = 100
+PATH_TRUNCATE_LENGTH: Final[int] = 100
 
 
 def _get_version() -> str:
@@ -121,7 +124,7 @@ def print_version_info() -> None:
     console = Console()
     current_version = _get_version()
 
-    markdown_text = f"""
+    markdown_text: str = f"""
 # Version Information
 
 **MIDIDiff:** {current_version}
