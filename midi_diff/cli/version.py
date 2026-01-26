@@ -373,10 +373,34 @@ def upgrade_package(include_pre: bool = False) -> None:
     except subprocess.CalledProcessError as e:
         # Parse stderr for more helpful error messages
         error_msg = e.stderr or str(e)
+        # Handle Windows file lock errors (WinError 32) by retrying with --user install
+        if os.name == "nt" and "WinError 32" in error_msg and "--user" not in pip_cmd:
+            fallback_cmd = list(pip_cmd)
+            fallback_cmd.insert(len(fallback_cmd) - 1, "--user")
+            try:
+                fallback_result = subprocess.run(
+                    fallback_cmd,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                if not _RICH_AVAILABLE:
+                    print("\nUpgrade succeeded on retry using --user to avoid file lock.")
+                    if fallback_result.stdout.strip():
+                        print(f"Output: {fallback_result.stdout.strip()}")
+                else:
+                    console.print("[green]✓ Upgrade succeeded on retry using --user to avoid file lock.[/green]")
+                    if fallback_result.stdout.strip():
+                        console.print(f"[dim]{fallback_result.stdout.strip()}[/dim]")
+                return
+            except subprocess.CalledProcessError as fallback_error:
+                error_msg = fallback_error.stderr or str(fallback_error)
         if "Permission denied" in error_msg or "PermissionError" in error_msg:
             helpful_msg = "Permission denied. Try running with appropriate permissions or use a virtual environment."
         elif "Network" in error_msg or "ConnectionError" in error_msg or "URLError" in error_msg:
             helpful_msg = "Network error. Please check your internet connection and try again."
+        elif "WinError 32" in error_msg:
+            helpful_msg = "File lock detected on midi-diff executable. Close any running midi-diff processes and retry with --user."
         else:
             helpful_msg = f"Upgrade failed: {e}"
         
