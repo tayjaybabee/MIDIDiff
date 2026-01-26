@@ -25,6 +25,7 @@ from midi_diff.cli.version import (
     UPDATE_CHECK_ENV_VAR,
 )
 from midi_diff.cli.docs import open_documentation
+from midi_diff.cli.completions import emit_completion_script, SUPPORTED_SHELLS
 
 
 # Subcommand names - single source of truth for CLI commands
@@ -34,6 +35,7 @@ COMMAND_DEBUG_INFO: Final[str] = 'debug-info'
 COMMAND_CHECK_UPDATES: Final[str] = 'check-updates'
 COMMAND_UPGRADE: Final[str] = 'upgrade'
 COMMAND_DOCS: Final[str] = 'docs'
+COMMAND_COMPLETION: Final[str] = 'completion'
 
 # Flag definitions - single source of truth for CLI flags
 # These are referenced by both build_parser() and backward compatibility logic
@@ -45,7 +47,7 @@ FLAG_HELP_LONG: Final[str] = '--help'
 # Known subcommands and flags for backward compatibility.
 # These sets are derived from the constants above to ensure they stay
 # synchronized with the parser configuration in build_parser().
-KNOWN_COMMANDS: Final[frozenset[str]] = frozenset({COMMAND_DIFF, COMMAND_DEBUG_INFO, COMMAND_CHECK_UPDATES, COMMAND_UPGRADE, COMMAND_DOCS})
+KNOWN_COMMANDS: Final[frozenset[str]] = frozenset({COMMAND_DIFF, COMMAND_DEBUG_INFO, COMMAND_CHECK_UPDATES, COMMAND_UPGRADE, COMMAND_DOCS, COMMAND_COMPLETION})
 KNOWN_FLAGS: Final[frozenset[str]] = frozenset({FLAG_VERSION_SHORT, FLAG_VERSION_LONG, FLAG_HELP_SHORT, FLAG_HELP_LONG})
 
 
@@ -128,6 +130,16 @@ def build_parser() -> argparse.ArgumentParser:
         COMMAND_DOCS,
         help='Open MIDIDiff documentation in your default web browser'
     )
+
+    completion_parser = subparsers.add_parser(
+        COMMAND_COMPLETION,
+        help='Generate shell completion script',
+    )
+    completion_parser.add_argument(
+        "shell",
+        choices=sorted(SUPPORTED_SHELLS),
+        help="Shell to generate completion for (bash, zsh, fish)",
+    )
     
     return parser
 
@@ -175,6 +187,9 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
         upgrade_package(include_pre=args.pre)
     elif args.command == COMMAND_DOCS:
         open_documentation()
+    elif args.command == COMMAND_COMPLETION:
+        script = emit_completion_script(args.shell, KNOWN_COMMANDS, KNOWN_FLAGS)
+        print(script)
     else:
         # No subcommand provided - show help
         parser.print_help()

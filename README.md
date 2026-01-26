@@ -104,6 +104,18 @@ Use the `debug-info` subcommand to display comprehensive diagnostic information:
 midi-diff debug-info
 ```
 
+### Shell completions
+
+Generate shell completion scripts:
+
+```shell
+midi-diff completion bash   # Bash
+midi-diff completion zsh    # Zsh
+midi-diff completion fish   # Fish
+```
+
+Then follow your shell's instructions to load the printed script.
+
 ### Programmatic usage
 
 You can also use MIDIDiff as a library in your Python code:
