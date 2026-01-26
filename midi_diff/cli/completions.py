@@ -1,13 +1,13 @@
 """
-Author: 
+Author:
     Inspyre Softworks
 
 Project:
     MIDIDiff
 
-File: 
+File:
     midi_diff/cli/completions.py
- 
+
 
 Description:
     Shell completion script generation for the MIDIDiff CLI.
