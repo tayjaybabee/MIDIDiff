@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated README.md Python version requirement from 3.13+ to 3.11+ to match pyproject.toml
 - Fixed pip install command in README.md to use proper wheel filename pattern (`midi_diff-*.whl`)
 - Updated CLI module path in README.md to include `diff` subcommand
+- Moved module entry point logic from `__init__.py` to dedicated `__main__.py` following Python conventions
 
 ### Fixed
 - README.md pip install command with wildcard inside quotes (should expand glob first)
