@@ -138,7 +138,7 @@ def build_parser() -> argparse.ArgumentParser:
     completion_parser.add_argument(
         "shell",
         choices=sorted(SUPPORTED_SHELLS),
-        help="Shell to generate completion for (bash, zsh, fish)",
+        help="Shell to generate completion for (bash, zsh, fish, powershell, cmd)",
     )
     
     return parser

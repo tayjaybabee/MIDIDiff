@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from typing import Final, Iterable
 
-SUPPORTED_SHELLS: Final[frozenset[str]] = frozenset({"bash", "zsh", "fish"})
+SUPPORTED_SHELLS: Final[frozenset[str]] = frozenset({"bash", "zsh", "fish", "powershell", "cmd"})
 
 
 def emit_completion_script(
@@ -48,6 +48,8 @@ def emit_completion_script(
 
     commands_list = " ".join(sorted(commands))
     flags_list = " ".join(sorted(flags))
+    commands_ps_array = "@(\"" + "\", \"".join(sorted(commands)) + "\")"
+    flags_ps_array = "@(\"" + "\", \"".join(sorted(flags)) + "\")"
 
     if shell == "bash":
         return f"""# Bash completion for midi-diff
@@ -119,8 +121,8 @@ _midi_diff() {{
 _midi_diff "$@"
 """
 
-    # fish
-    return f"""# Fish completion for midi-diff
+    if shell == "fish":
+        return f"""# Fish completion for midi-diff
 complete -c midi-diff -n "not __fish_seen_subcommand_from {commands_list}" -s V -l version -d "Show version and environment info"
 complete -c midi-diff -n "not __fish_seen_subcommand_from {commands_list}" -s h -l help -d "Show help"
 
@@ -130,6 +132,63 @@ complete -c midi-diff -n "__fish_seen_subcommand_from diff" -a "(__fish_complete
 complete -c midi-diff -n "__fish_seen_subcommand_from upgrade" -l pre -d "Include pre-release versions"
 complete -c midi-diff -n "__fish_seen_subcommand_from completion" -a "bash zsh fish" -d "Target shell"
 """
+
+    if shell == "powershell":
+        return f"""# PowerShell completion for midi-diff
+using namespace System.Management.Automation
+
+Register-ArgumentCompleter -CommandName midi-diff -ScriptBlock {{
+    param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+
+    $commands = {commands_ps_array}
+    $flags = {flags_ps_array}
+
+    # if first token after command
+    if ($commandAst.CommandElements.Count -le 2) {{
+        foreach ($cmd in $commands) {{
+            if ($cmd -like "$wordToComplete*") {{
+                [CompletionResult]::new($cmd, $cmd, 'ParameterValue', 'command')
+            }}
+        }}
+        return
+    }}
+
+    $subcommand = $commandAst.CommandElements[1].Extent.Text
+
+    switch ($subcommand) {{
+        "diff" {{
+            [CompletionResult]::new($wordToComplete, $wordToComplete, 'ParameterValue', 'file path')
+        }}
+        "upgrade" {{
+            if ("--pre" -like "$wordToComplete*") {{
+                [CompletionResult]::new("--pre", "--pre", 'ParameterValue', 'Include pre-release versions')
+            }}
+        }}
+        "completion" {{
+            foreach ($s in @("bash","zsh","fish","powershell","cmd")) {{
+                if ($s -like "$wordToComplete*") {{
+                    [CompletionResult]::new($s, $s, 'ParameterValue', 'shell')
+                }}
+            }}
+        }}
+        default {{
+            foreach ($flag in $flags) {{
+                if ($flag -like "$wordToComplete*") {{
+                    [CompletionResult]::new($flag, $flag, 'ParameterValue', 'flag')
+                }}
+            }}
+        }}
+    }}
+}}
+"""
+
+    # cmd (simple usage hint)
+    return (
+        "@echo off\n"
+        "rem Command prompt does not support rich completions by default.\n"
+        "rem Use 'doskey' macros as a minimal helper:\n"
+        "doskey midi-diff=midi-diff $*\n"
+    )
 
 
 __all__ = ["emit_completion_script", "SUPPORTED_SHELLS"]

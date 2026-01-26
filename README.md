@@ -109,9 +109,11 @@ midi-diff debug-info
 Generate shell completion scripts:
 
 ```shell
-midi-diff completion bash   # Bash
-midi-diff completion zsh    # Zsh
-midi-diff completion fish   # Fish
+midi-diff completion bash        # Bash
+midi-diff completion zsh         # Zsh
+midi-diff completion fish        # Fish
+midi-diff completion powershell  # PowerShell
+midi-diff completion cmd         # Command Prompt (prints doskey helper)
 ```
 
 Then follow your shell's instructions to load the printed script.

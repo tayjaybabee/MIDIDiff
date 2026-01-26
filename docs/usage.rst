@@ -69,9 +69,11 @@ Generate shell completion scripts for popular shells:
 
 .. code-block:: bash
 
-   midi-diff completion bash   # Bash
-   midi-diff completion zsh    # Zsh
-   midi-diff completion fish   # Fish
+   midi-diff completion bash        # Bash
+   midi-diff completion zsh         # Zsh
+   midi-diff completion fish        # Fish
+   midi-diff completion powershell  # PowerShell
+   midi-diff completion cmd         # Command Prompt (prints doskey helper)
 
 Follow your shell's instructions to load the printed script (e.g., source it or place it in your completions directory).
 

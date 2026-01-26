@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- `completion` subcommand to generate shell completion scripts (bash, zsh, fish).
+- `completion` subcommand to generate shell completion scripts (bash, zsh, fish, PowerShell, cmd).
 
 ## [1.0.5] - 2026-01-26
 
