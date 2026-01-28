@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "midi-diff"
-version = "1.0.7"
+version = "1.0.8"
 description = "Output the differences between two MIDI files, using the command-line."
 authors = ["Taylor-Jayde Blackstone <t.blackstone@inspyre.tech>"]
 license = "MIT"
@@ -37,3 +37,7 @@ midi-diff = "midi_diff.cli:cli"
 [tool.poetry.group.dev.dependencies]
 sphinx = ">=7.0,<9.0"
 sphinx-rtd-theme = ">=2.0,<3.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

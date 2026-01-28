@@ -108,15 +108,28 @@ Poor changelog entries:
    cd MIDIDiff
    ```
 
-2. Install dependencies:
+2. Install dependencies in editable mode:
    ```bash
-   poetry install
+   poetry install --extras cli
    ```
+   
+   This installs the package in editable/development mode, meaning changes to the
+   source code are immediately reflected without needing to reinstall.
+   
+   **Alternatively with pip:**
+   ```bash
+   pip install -e ".[cli]"
+   ```
+   
+   The `-e` flag ensures an editable install, which is essential for development.
 
 3. Verify installation:
    ```bash
    poetry run midi-diff --version
    ```
+
+**Important:** Always use editable install (`poetry install` or `pip install -e .`) when developing,
+so you can test changes immediately without rebuilding/reinstalling the package.
 
 ### Building
 

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.8] - 2026-01-28
+
+### Added
+- Comprehensive testing and development guide (`docs/testing.rst`) with detailed instructions for editable installs using both Poetry and pip.
+- Updated README.md, CONTRIBUTING.md with editable install instructions for development.
+- `[build-system]` section in pyproject.toml to properly configure poetry-core as the build backend.
+
+### Changed
+- Installation documentation now emphasizes editable install (`-e` flag) for development workflow.
+- README.md now features a dedicated "For Development" section at the top of the Installation guide.
+
 ## [1.0.7] - 2026-01-28
 
 ### Fixed
