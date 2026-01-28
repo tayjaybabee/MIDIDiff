@@ -45,13 +45,10 @@ in editable mode using the ``-e`` flag:
 The ``-e`` flag creates a link to your source code directory instead of copying
 files, so any changes you make to the code are immediately available.
 
-**Note:** For pip to work correctly, ensure you have the ``build`` and ``poetry-core``
-packages installed:
-
-.. code-block:: bash
-
-   pip install build poetry-core
-
+**Note:** Editable installs using ``pip install -e`` rely on PEP 660 support in pip.
+Make sure you are using a recent version of pip (for example, ``pip>=21.3``). Pip
+will automatically install any required build backend (such as ``poetry-core``)
+based on the project's ``pyproject.toml`` configuration.
 Running Tests
 -------------
 
