@@ -312,57 +312,65 @@ def upgrade_package(include_pre: bool = False) -> None:
     """
     current_version = _get_version()
     
-    if not _RICH_AVAILABLE:
-        print(f"Current version: {current_version}")
-        print("Checking for updates...")
-        update_msg = _check_for_update(current_version)
-        print(update_msg)
-        
-        if "Up to date" in update_msg:
-            print("No upgrade needed.")
-            return
-        
-        if "Update check failed" in update_msg:
-            print("Cannot proceed with upgrade due to update check failure.")
-            return
-        
-        print("\nUpgrading midi-diff...")
-    else:
-        console = Console()
-        console.print(f"[bold]Current version:[/bold] {current_version}")
-        console.print("[dim]Checking for updates...[/dim]")
-        
-        update_msg = _check_for_update(current_version)
-        
-        if "Up to date" in update_msg:
-            console.print(f'[green]✓ {update_msg}[/green]')
-            console.print("[dim]No upgrade needed.[/dim]")
-            return
-        
-        if "Update check failed" in update_msg:
-            console.print(f'[red]{update_msg}[/red]')
-            console.print("[red]Cannot proceed with upgrade due to update check failure.[/red]")
-            return
-        
-        console.print(f'[yellow]⚠ {update_msg}[/yellow]')
-        console.print("\n[dim]Upgrading midi-diff...[/dim]")
-    
-    # Get the latest version from PyPI to use exact version specifier
+    # Get the latest version from PyPI first to avoid multiple network requests
     latest_version = _get_latest_version_from_pypi()
     
     if latest_version is None:
         error_msg = "Failed to fetch latest version from PyPI. Cannot proceed with upgrade."
         if not _RICH_AVAILABLE:
+            print(f"Current version: {current_version}")
+            print("Checking for updates...")
+            print(f"Update check failed: unable to fetch version from PyPI.")
             print(f"\n{error_msg}")
         else:
+            console = Console()
+            console.print(f"[bold]Current version:[/bold] {current_version}")
+            console.print("[dim]Checking for updates...[/dim]")
+            console.print(f'[red]Update check failed: unable to fetch version from PyPI.[/red]')
             console.print(f"[red]✗ {error_msg}[/red]")
         sys.exit(1)
     
-    # Build pip command with exact version specifier (==) to ensure proper upgrade
-    pip_cmd = [sys.executable, "-m", "pip", "install"]
+    # Check if an update is needed
+    if latest_version == current_version:
+        if not _RICH_AVAILABLE:
+            print(f"Current version: {current_version}")
+            print("Checking for updates...")
+            print("Up to date.")
+            print("No upgrade needed.")
+        else:
+            console = Console()
+            console.print(f"[bold]Current version:[/bold] {current_version}")
+            console.print("[dim]Checking for updates...[/dim]")
+            console.print(f'[green]✓ Up to date.[/green]')
+            console.print("[dim]No upgrade needed.[/dim]")
+        return
+    
+    # Display update information
+    update_msg = f"Update available: {latest_version} (installed {current_version})."
+    
+    if not _RICH_AVAILABLE:
+        print(f"Current version: {current_version}")
+        print("Checking for updates...")
+        print(update_msg)
+        print("\nUpgrading midi-diff...")
+    else:
+        console = Console()
+        console.print(f"[bold]Current version:[/bold] {current_version}")
+        console.print("[dim]Checking for updates...[/dim]")
+        console.print(f'[yellow]⚠ {update_msg}[/yellow]')
+        console.print("\n[dim]Upgrading midi-diff...[/dim]")
+    
+    # Note: --pre flag is not used when an exact version is specified
+    # If the user wants pre-release versions, they should check PyPI manually
     if include_pre:
-        pip_cmd.append("--pre")
-    pip_cmd.append(f"{DIST_NAME}=={latest_version}")
+        warning_msg = "Note: --pre flag has no effect when upgrading to a specific version."
+        if not _RICH_AVAILABLE:
+            print(f"Warning: {warning_msg}")
+        else:
+            console.print(f"[yellow]{warning_msg}[/yellow]")
+    
+    # Build pip command with exact version specifier (==) to ensure proper upgrade
+    pip_cmd = [sys.executable, "-m", "pip", "install", f"{DIST_NAME}=={latest_version}"]
     
     try:
         # Run pip upgrade
