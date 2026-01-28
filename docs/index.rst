@@ -17,6 +17,8 @@ start tick, and duration; velocity differences are ignored.
    installation
    quickstart
    usage
+   shell-completions
+   testing
    api
    contributing
 

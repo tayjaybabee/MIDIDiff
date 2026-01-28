@@ -75,7 +75,7 @@ Generate shell completion scripts for popular shells:
    midi-diff completion powershell  # PowerShell
    midi-diff completion cmd         # Command Prompt (prints doskey helper)
 
-Follow your shell's instructions to load the printed script (e.g., source it or place it in your completions directory).
+For detailed installation instructions for each shell, see the :doc:`shell-completions` guide.
 
 Version Information
 ~~~~~~~~~~~~~~~~~~~

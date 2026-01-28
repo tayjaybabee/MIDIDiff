@@ -29,13 +29,25 @@ poetry run sphinx-build -b html . _build/html
 
 ## Installation
 
-### With Poetry (recommended for development)
+### For Development (Editable Install)
 
+If you're contributing to MIDIDiff or testing changes, install in editable mode:
+
+**Recommended:**
 ```shell
-poetry install
+poetry install --extras cli
 ```
 
-This installs the core library and all optional dependencies, including the CLI extras.
+Poetry installs the package in editable mode by default, so changes to the source code are immediately reflected.
+
+**Alternative (using pip):**
+```shell
+pip install -e ".[cli]"
+```
+
+The `-e` flag creates an editable install, allowing you to modify the code without reinstalling.
+
+For more details, see the [Testing Guide](https://MIDIDiff.readthedocs.io/en/latest/testing.html).
 
 ### Build and install locally
 
@@ -106,7 +118,7 @@ midi-diff debug-info
 
 ### Shell completions
 
-Generate shell completion scripts:
+Generate shell completion scripts for enhanced command-line experience:
 
 ```shell
 midi-diff completion bash        # Bash
@@ -116,7 +128,7 @@ midi-diff completion powershell  # PowerShell
 midi-diff completion cmd         # Command Prompt (prints doskey helper)
 ```
 
-Then follow your shell's instructions to load the printed script.
+**Installation:** For detailed instructions on installing and configuring shell completions for your specific shell, see the [Shell Completions Guide](https://MIDIDiff.readthedocs.io/en/latest/shell-completions.html) in the documentation.
 
 ### Programmatic usage
 

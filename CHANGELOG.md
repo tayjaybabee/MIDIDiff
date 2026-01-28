@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.7] - 2026-01-28
+
+### Fixed
+- Fixed `NameError` in bash completion script generation caused by unescaped curly braces in f-string for bash variables (`COMP_WORDS`, `COMP_CWORD`).
+
+### Added
+- Comprehensive shell completions documentation (`docs/shell-completions.rst`) with detailed installation instructions for bash, zsh, fish, PowerShell, and cmd.
+- Comprehensive testing and development guide (`docs/testing.rst`) with detailed instructions for editable installs using both Poetry and pip.
+- `[build-system]` section in pyproject.toml to properly configure poetry-core as the build backend.
+- Updated README.md, CONTRIBUTING.md, and usage.rst with editable install instructions and references to new documentation.
+
+### Changed
+- Installation documentation now emphasizes editable install (`-e` flag) for development workflow.
+- README.md now features a dedicated "For Development" section at the top of the Installation guide.
+- Standardized on `poetry install --extras cli` as the primary development command across all documentation, with pip alternatives clearly marked as secondary.
+- Improved consistency in editable install guidance throughout README.md, CONTRIBUTING.md, and docs/testing.rst.
+
 ## [1.0.6] - 2026-01-27
 
 ### Added
