@@ -126,6 +126,7 @@ midi-diff completion zsh         # Zsh
 midi-diff completion fish        # Fish
 midi-diff completion powershell  # PowerShell
 midi-diff completion cmd         # Command Prompt (prints doskey helper)
+midi-diff install-completions    # Install for detected shell (use --shell to override)
 ```
 
 **Installation:** For detailed instructions on installing and configuring shell completions for your specific shell, see the [Shell Completions Guide](https://MIDIDiff.readthedocs.io/en/latest/shell-completions.html) in the documentation.

@@ -27,6 +27,22 @@ Replace ``<shell>`` with one of: ``bash``, ``zsh``, ``fish``, ``powershell``, or
 The script will be printed to standard output. You can then install it according
 to your shell's conventions.
 
+Automatic Installation
+----------------------
+
+To install completions for the shell you are currently using, run:
+
+.. code-block:: bash
+
+   midi-diff install-completions
+
+The tool will attempt to detect your shell and install the completion script to a
+standard per-user location. To override detection, pass ``--shell``:
+
+.. code-block:: bash
+
+   midi-diff install-completions --shell zsh
+
 Installation Instructions
 -------------------------
 

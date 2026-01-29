@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-01-29
+
+### Added
+- Added `install-completions` subcommand to generate and install shell completions for the current shell (with optional `--shell` override).
+- Completion scripts now include option/flag completions for subcommands.
+
 ## [1.0.8] - 2026-01-28
 
 ### Fixed

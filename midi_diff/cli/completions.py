@@ -9,13 +9,15 @@ File:
     midi_diff/cli/completions.py
 
 
-Description:
-    Shell completion script generation for the MIDIDiff CLI.
+ Description:
+     Shell completion script generation for the MIDIDiff CLI.
 
 """
 from __future__ import annotations
 
-from typing import Final, Iterable
+from pathlib import Path
+import os
+from typing import Final, Iterable, Mapping
 
 SUPPORTED_SHELLS: Final[frozenset[str]] = frozenset({"bash", "zsh", "fish", "powershell", "cmd"})
 
@@ -24,6 +26,7 @@ def emit_completion_script(
     shell: str,
     commands: Iterable[str],
     flags: Iterable[str],
+    subcommand_flags: Mapping[str, Iterable[str]] | None = None,
 ) -> str:
     """
     Generate a shell completion script for the given shell.
@@ -34,8 +37,10 @@ def emit_completion_script(
         Target shell name (bash, zsh, fish, powershell, cmd).
     commands:
         Iterable of supported subcommands.
-    flags:
-        Iterable of supported top-level flags.
+     flags:
+         Iterable of supported top-level flags.
+    subcommand_flags:
+        Mapping of subcommand name to iterable of flags/options for that subcommand.
 
     Returns
     -------
@@ -46,12 +51,18 @@ def emit_completion_script(
         supported = ", ".join(sorted(SUPPORTED_SHELLS))
         raise ValueError(f"Unsupported shell '{shell}'. Supported shells: {supported}")
 
+    sub_flags = {name: tuple(sorted(values)) for name, values in (subcommand_flags or {}).items()}
+
     commands_list = " ".join(sorted(commands))
     flags_list = " ".join(sorted(flags))
     commands_ps_array = "@(\"" + "\", \"".join(sorted(commands)) + "\")"
     flags_ps_array = "@(\"" + "\", \"".join(sorted(flags)) + "\")"
     shells_list = " ".join(sorted(SUPPORTED_SHELLS))
     shells_ps_array = "@(\"" + "\", \"".join(sorted(SUPPORTED_SHELLS)) + "\")"
+    def _shell_flags(name: str) -> str:
+        return " ".join(sub_flags.get(name, ()))
+    def _ps_flags(name: str) -> str:
+        return "@(\"" + "\", \"".join(sub_flags.get(name, ())) + "\")"
 
     if shell == "bash":
         return f"""# Bash completion for midi-diff
@@ -68,15 +79,20 @@ _midi_diff_completions() {{
 
     case "${{COMP_WORDS[1]}}" in
         diff)
-            if [[ $COMP_CWORD -le 4 ]]; then
+            if [[ "$cur" == -* ]]; then
+                COMPREPLY=($(compgen -W "{_shell_flags("diff")}" -- "$cur"))
+            elif [[ $COMP_CWORD -le 4 ]]; then
                 COMPREPLY=($(compgen -f -- "$cur"))
             fi
             ;;
         upgrade)
-            COMPREPLY=($(compgen -W "--pre" -- "$cur"))
+            COMPREPLY=($(compgen -W "{_shell_flags("upgrade")}" -- "$cur"))
             ;;
         completion)
-            COMPREPLY=($(compgen -W "{shells_list}" -- "$cur"))
+            COMPREPLY=($(compgen -W "{shells_list} {_shell_flags("completion")}" -- "$cur"))
+            ;;
+        install-completions)
+            COMPREPLY=($(compgen -W "{_shell_flags("install-completions")}" -- "$cur"))
             ;;
         *)
             COMPREPLY=($(compgen -W "{flags_list}" -- "$cur"))
@@ -104,13 +120,20 @@ _midi_diff() {{
         args)
             case $words[2] in
                 diff)
-                    _arguments "2:First MIDI file:_files" "3:Second MIDI file:_files" "4:Output MIDI file:_files"
+                    if [[ $words[CURRENT] == -* ]]; then
+                        _values 'diff options' {_shell_flags("diff")}
+                    else
+                        _arguments "2:First MIDI file:_files" "3:Second MIDI file:_files" "4:Output MIDI file:_files"
+                    fi
                     ;;
                 upgrade)
-                    _values 'upgrade options' --pre
+                    _values 'upgrade options' {_shell_flags("upgrade")}
                     ;;
                 completion)
-                    _values 'shell' {shells_list}
+                    _values 'shell' {shells_list} {_shell_flags("completion")}
+                    ;;
+                install-completions)
+                    _values 'options' {_shell_flags("install-completions")}
                     ;;
                 *)
                     _values 'flags' {flags_list}
@@ -131,8 +154,16 @@ complete -c midi-diff -n "not __fish_seen_subcommand_from {commands_list}" -s h 
 complete -c midi-diff -n "__fish_use_subcommand" -a "{commands_list}" -d "midi-diff commands"
 
 complete -c midi-diff -n "__fish_seen_subcommand_from diff" -a "(__fish_complete_path)" -d "MIDI file path"
+complete -c midi-diff -n "__fish_seen_subcommand_from diff" -s h -l help -d "Show help"
 complete -c midi-diff -n "__fish_seen_subcommand_from upgrade" -l pre -d "Include pre-release versions"
+complete -c midi-diff -n "__fish_seen_subcommand_from upgrade" -s h -l help -d "Show help"
 complete -c midi-diff -n "__fish_seen_subcommand_from completion" -a "{shells_list}" -d "Target shell"
+complete -c midi-diff -n "__fish_seen_subcommand_from completion" -s h -l help -d "Show help"
+complete -c midi-diff -n "__fish_seen_subcommand_from install-completions" -l shell -a "{shells_list}" -d "Override detected shell"
+complete -c midi-diff -n "__fish_seen_subcommand_from install-completions" -s h -l help -d "Show help"
+complete -c midi-diff -n "__fish_seen_subcommand_from debug-info" -s h -l help -d "Show help"
+complete -c midi-diff -n "__fish_seen_subcommand_from check-updates" -s h -l help -d "Show help"
+complete -c midi-diff -n "__fish_seen_subcommand_from docs" -s h -l help -d "Show help"
 """
 
     if shell == "powershell":
@@ -160,17 +191,57 @@ Register-ArgumentCompleter -Native -CommandName midi-diff -ScriptBlock {{
 
     switch ($subcommand) {{
         "diff" {{
+            foreach ($opt in {_ps_flags("diff")}) {{
+                if ($opt -like "$wordToComplete*") {{
+                    [CompletionResult]::new($opt, $opt, 'ParameterValue', 'option')
+                }}
+            }}
             [CompletionResult]::new($wordToComplete, $wordToComplete, 'ParameterValue', 'file path')
         }}
         "upgrade" {{
-            if ("--pre" -like "$wordToComplete*") {{
-                [CompletionResult]::new("--pre", "--pre", 'ParameterValue', 'Include pre-release versions')
+            foreach ($opt in {_ps_flags("upgrade")}) {{
+                if ($opt -like "$wordToComplete*") {{
+                    [CompletionResult]::new($opt, $opt, 'ParameterValue', 'option')
+                }}
             }}
         }}
         "completion" {{
             foreach ($s in $shells) {{
                 if ($s -like "$wordToComplete*") {{
                     [CompletionResult]::new($s, $s, 'ParameterValue', 'shell')
+                }}
+            }}
+            foreach ($opt in {_ps_flags("completion")}) {{
+                if ($opt -like "$wordToComplete*") {{
+                    [CompletionResult]::new($opt, $opt, 'ParameterValue', 'option')
+                }}
+            }}
+        }}
+        "install-completions" {{
+            foreach ($opt in {_ps_flags("install-completions")}) {{
+                if ($opt -like "$wordToComplete*") {{
+                    [CompletionResult]::new($opt, $opt, 'ParameterValue', 'option')
+                }}
+            }}
+        }}
+        "debug-info" {{
+            foreach ($opt in {_ps_flags("debug-info")}) {{
+                if ($opt -like "$wordToComplete*") {{
+                    [CompletionResult]::new($opt, $opt, 'ParameterValue', 'option')
+                }}
+            }}
+        }}
+        "check-updates" {{
+            foreach ($opt in {_ps_flags("check-updates")}) {{
+                if ($opt -like "$wordToComplete*") {{
+                    [CompletionResult]::new($opt, $opt, 'ParameterValue', 'option')
+                }}
+            }}
+        }}
+        "docs" {{
+            foreach ($opt in {_ps_flags("docs")}) {{
+                if ($opt -like "$wordToComplete*") {{
+                    [CompletionResult]::new($opt, $opt, 'ParameterValue', 'option')
                 }}
             }}
         }}
@@ -194,4 +265,65 @@ Register-ArgumentCompleter -Native -CommandName midi-diff -ScriptBlock {{
     )
 
 
-__all__ = ["emit_completion_script", "SUPPORTED_SHELLS"]
+def detect_shell() -> str | None:
+    """Best-effort detection of the current shell."""
+    shell_env = os.environ.get("SHELL")
+    if shell_env:
+        name = Path(shell_env).name.lower()
+        if name in SUPPORTED_SHELLS:
+            return name
+        if "powershell" in name or "pwsh" in name:
+            return "powershell"
+        if name.endswith("cmd.exe"):
+            return "cmd"
+
+    if os.environ.get("POWERSHELL_DISTRIBUTION_CHANNEL") or os.environ.get("PSModulePath"):
+        return "powershell"
+
+    comspec = os.environ.get("COMSPEC", "").lower()
+    if comspec.endswith("cmd.exe"):
+        return "cmd"
+
+    return None
+
+
+def _default_install_path(shell: str) -> Path:
+    home = Path.home()
+    if shell == "bash":
+        return home / ".local" / "share" / "bash-completion" / "completions" / "midi-diff"
+    if shell == "zsh":
+        return home / ".zsh" / "completions" / "_midi-diff"
+    if shell == "fish":
+        return home / ".config" / "fish" / "completions" / "midi-diff.fish"
+    if shell == "powershell":
+        return home / "Documents" / "PowerShell" / "Scripts" / "midi-diff-completion.ps1"
+    if shell == "cmd":
+        return Path(os.environ.get("USERPROFILE", home)) / "midi-diff-completion.cmd"
+    raise ValueError(f"Unsupported shell '{shell}'")
+
+
+def install_completions(
+    shell: str | None,
+    commands: Iterable[str],
+    flags: Iterable[str],
+    subcommand_flags: Mapping[str, Iterable[str]] | None = None,
+) -> Path:
+    """
+    Detect the current shell (or use the provided one), generate the completion script,
+    and install it to a default location for that shell.
+    """
+    target_shell = shell or detect_shell()
+    if target_shell is None:
+        raise RuntimeError("Unable to detect current shell. Please specify --shell.")
+    if target_shell not in SUPPORTED_SHELLS:
+        supported = ", ".join(sorted(SUPPORTED_SHELLS))
+        raise ValueError(f"Unsupported shell '{target_shell}'. Supported shells: {supported}")
+
+    script = emit_completion_script(target_shell, commands, flags, subcommand_flags)
+    path = _default_install_path(target_shell)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(script, encoding="utf-8")
+    return path
+
+
+__all__ = ["emit_completion_script", "SUPPORTED_SHELLS", "install_completions", "detect_shell"]
