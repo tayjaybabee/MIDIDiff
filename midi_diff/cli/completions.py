@@ -15,11 +15,19 @@ Description:
 """
 from __future__ import annotations
 
-from pathlib import Path
 import os
+import platform
+from pathlib import Path
 from typing import Final, Iterable, Mapping
 
 SUPPORTED_SHELLS: Final[frozenset[str]] = frozenset({"bash", "zsh", "fish", "powershell", "cmd"})
+COMPLETION_FILENAMES: Final[dict[str, str]] = {
+    "bash": "midi-diff",
+    "zsh": "_midi-diff",
+    "fish": "midi-diff.fish",
+    "powershell": "midi-diff-completion.ps1",
+    "cmd": "midi-diff-completion.cmd",
+}
 
 
 def emit_completion_script(
@@ -288,17 +296,21 @@ def detect_shell() -> str | None:
 
 
 def _default_install_path(shell: str) -> Path:
-    home = Path.home()
+    env_override = os.environ.get("MIDI_DIFF_COMPLETIONS_DIR")
+    base_dir = Path(env_override) if env_override else Path.home()
+
     if shell == "bash":
-        return home / ".local" / "share" / "bash-completion" / "completions" / "midi-diff"
+        return base_dir / ".local" / "share" / "bash-completion" / "completions" / COMPLETION_FILENAMES[shell]
     if shell == "zsh":
-        return home / ".zsh" / "completions" / "_midi-diff"
+        return base_dir / ".zsh" / "completions" / COMPLETION_FILENAMES[shell]
     if shell == "fish":
-        return home / ".config" / "fish" / "completions" / "midi-diff.fish"
+        return base_dir / ".config" / "fish" / "completions" / COMPLETION_FILENAMES[shell]
     if shell == "powershell":
-        return home / "Documents" / "PowerShell" / "Scripts" / "midi-diff-completion.ps1"
+        if platform.system().lower() == "windows":
+            return base_dir / "Documents" / "PowerShell" / "Scripts" / COMPLETION_FILENAMES[shell]
+        return base_dir / ".config" / "powershell" / "Scripts" / COMPLETION_FILENAMES[shell]
     if shell == "cmd":
-        return Path(os.environ.get("USERPROFILE", home)) / "midi-diff-completion.cmd"
+        return Path(os.environ.get("USERPROFILE", base_dir)) / COMPLETION_FILENAMES[shell]
     raise ValueError(f"Unsupported shell '{shell}'")
 
 

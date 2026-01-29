@@ -43,6 +43,12 @@ standard per-user location. To override detection, pass ``--shell``:
 
    midi-diff install-completions --shell zsh
 
+You can also override the base directory used for installation by setting
+``MIDI_DIFF_COMPLETIONS_DIR``. This is useful if your shell loads completions
+from a nonstandard location. On non-Windows systems, PowerShell defaults to
+``~/.config/powershell/Scripts``, while on Windows it uses
+``~/Documents/PowerShell/Scripts``. CMD writes to ``%USERPROFILE%`` by default.
+
 Installation Instructions
 -------------------------
 
