@@ -13,6 +13,20 @@ Supported Shells
 * **PowerShell** - Windows PowerShell and PowerShell Core (cross-platform)
 * **CMD** - Windows Command Prompt (basic doskey helper)
 
+Environment Overrides
+---------------------
+
+If your completions live in a custom location, set ``MIDI_DIFF_COMPLETIONS_DIR``
+to override the base directory used by ``install-completions``. The final
+target depends on the shell:
+
+* bash: ``$MIDI_DIFF_COMPLETIONS_DIR/.local/share/bash-completion/completions/midi-diff``
+* zsh: ``$MIDI_DIFF_COMPLETIONS_DIR/.zsh/completions/_midi-diff``
+* fish: ``$MIDI_DIFF_COMPLETIONS_DIR/.config/fish/completions/midi-diff.fish``
+* powershell (Windows): ``$MIDI_DIFF_COMPLETIONS_DIR/Documents/PowerShell/Scripts/midi-diff-completion.ps1``
+* powershell (non-Windows): ``$MIDI_DIFF_COMPLETIONS_DIR/.config/powershell/Scripts/midi-diff-completion.ps1``
+* cmd: ``%USERPROFILE%/midi-diff-completion.cmd`` (or under ``MIDI_DIFF_COMPLETIONS_DIR`` if set)
+
 Generating Completion Scripts
 -----------------------------
 

@@ -127,6 +127,7 @@ midi-diff completion fish        # Fish
 midi-diff completion powershell  # PowerShell
 midi-diff completion cmd         # Command Prompt (prints doskey helper)
 midi-diff install-completions    # Install for detected shell (use --shell to override)
+MIDI_DIFF_COMPLETIONS_DIR=~/.my-completions midi-diff install-completions  # Custom base dir
 ```
 
 **Installation:** For detailed instructions on installing and configuring shell completions for your specific shell, see the [Shell Completions Guide](https://MIDIDiff.readthedocs.io/en/latest/shell-completions.html) in the documentation.
