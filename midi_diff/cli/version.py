@@ -72,7 +72,7 @@ def _get_metadata_version(name: str, fallback: str) -> str:
         return fallback
 
 
-def _get_latest_version_from_pypi() -> str | None:
+def _get_latest_version_from_pypi() -> tuple[str | None, str | None]:
     """
     Fetch the latest version from PyPI.
     
@@ -80,15 +80,21 @@ def _get_latest_version_from_pypi() -> str | None:
     to retrieve version information.
     
     Returns:
-        Latest version string from PyPI, or None if the request fails
+        A tuple of (version, error_message):
+        - version: Latest version string from PyPI, or None if the request fails
+        - error_message: Error description if the request fails, or None on success
     """
     try:
         with urllib.request.urlopen(PYPI_JSON_URL, timeout=5) as response:
             payload = json.load(response)
-    except (urllib.error.URLError, urllib.error.HTTPError, OSError, json.JSONDecodeError):
-        return None
+    except (urllib.error.URLError, urllib.error.HTTPError, OSError, json.JSONDecodeError) as exc:
+        return None, str(exc)
     
-    return payload.get("info", {}).get("version")
+    version = payload.get("info", {}).get("version")
+    if not version:
+        return None, "missing version metadata"
+    
+    return version, None
 
 
 def _check_for_update(current_version: str) -> str:
@@ -106,10 +112,10 @@ def _check_for_update(current_version: str) -> str:
     Returns:
         Update status message
     """
-    latest = _get_latest_version_from_pypi()
+    latest, error = _get_latest_version_from_pypi()
     
     if latest is None:
-        return "Update check failed: unable to fetch version from PyPI."
+        return f"Update check failed: {error}"
     if latest == current_version:
         return "Up to date."
     return f"Update available: {latest} (installed {current_version})."
@@ -313,22 +319,22 @@ def upgrade_package(include_pre: bool = False) -> None:
     current_version = _get_version()
     
     # Get the latest version from PyPI first to avoid multiple network requests
-    latest_version = _get_latest_version_from_pypi()
+    latest_version, error = _get_latest_version_from_pypi()
     
     if latest_version is None:
-        error_msg = "Failed to fetch latest version from PyPI. Cannot proceed with upgrade."
+        # Align with original behavior: print error and return instead of sys.exit(1)
         if not _RICH_AVAILABLE:
             print(f"Current version: {current_version}")
             print("Checking for updates...")
-            print(f"Update check failed: unable to fetch version from PyPI.")
-            print(f"\n{error_msg}")
+            print(f"Update check failed: {error}")
+            print("Cannot proceed with upgrade due to update check failure.")
         else:
             console = Console()
             console.print(f"[bold]Current version:[/bold] {current_version}")
             console.print("[dim]Checking for updates...[/dim]")
-            console.print(f'[red]Update check failed: unable to fetch version from PyPI.[/red]')
-            console.print(f"[red]✗ {error_msg}[/red]")
-        sys.exit(1)
+            console.print(f'[red]Update check failed: {error}[/red]')
+            console.print("[red]Cannot proceed with upgrade due to update check failure.[/red]")
+        return
     
     # Check if an update is needed
     if latest_version == current_version:
