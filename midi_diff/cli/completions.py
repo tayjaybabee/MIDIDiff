@@ -9,8 +9,8 @@ File:
     midi_diff/cli/completions.py
 
 
- Description:
-     Shell completion script generation for the MIDIDiff CLI.
+Description:
+    Shell completion script generation for the MIDIDiff CLI.
 
 """
 from __future__ import annotations
@@ -37,8 +37,8 @@ def emit_completion_script(
         Target shell name (bash, zsh, fish, powershell, cmd).
     commands:
         Iterable of supported subcommands.
-     flags:
-         Iterable of supported top-level flags.
+    flags:
+        Iterable of supported top-level flags.
     subcommand_flags:
         Mapping of subcommand name to iterable of flags/options for that subcommand.
 

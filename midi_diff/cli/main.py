@@ -50,6 +50,15 @@ FLAG_HELP_LONG: Final[str] = '--help'
 # synchronized with the parser configuration in build_parser().
 KNOWN_COMMANDS: Final[frozenset[str]] = frozenset({COMMAND_DIFF, COMMAND_DEBUG_INFO, COMMAND_CHECK_UPDATES, COMMAND_UPGRADE, COMMAND_DOCS, COMMAND_COMPLETION, COMMAND_INSTALL_COMPLETIONS})
 KNOWN_FLAGS: Final[frozenset[str]] = frozenset({FLAG_VERSION_SHORT, FLAG_VERSION_LONG, FLAG_HELP_SHORT, FLAG_HELP_LONG})
+SUBCOMMAND_FLAGS: Final[dict[str, tuple[str, ...]]] = {
+    COMMAND_DIFF: ("--help", "-h"),
+    COMMAND_UPGRADE: ("--pre", "--help", "-h"),
+    COMMAND_COMPLETION: ("--help", "-h"),
+    COMMAND_INSTALL_COMPLETIONS: ("--shell", "--help", "-h"),
+    COMMAND_DEBUG_INFO: ("--help", "-h"),
+    COMMAND_CHECK_UPDATES: ("--help", "-h"),
+    COMMAND_DOCS: ("--help", "-h"),
+}
 
 
 class VersionAction(argparse.Action):
@@ -203,15 +212,7 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
             args.shell,
             KNOWN_COMMANDS,
             KNOWN_FLAGS,
-            {
-                COMMAND_DIFF: ("--help", "-h"),
-                COMMAND_UPGRADE: ("--pre", "--help", "-h"),
-                COMMAND_COMPLETION: ("--help", "-h"),
-                COMMAND_INSTALL_COMPLETIONS: ("--shell", "--help", "-h"),
-                COMMAND_DEBUG_INFO: ("--help", "-h"),
-                COMMAND_CHECK_UPDATES: ("--help", "-h"),
-                COMMAND_DOCS: ("--help", "-h"),
-            },
+            SUBCOMMAND_FLAGS,
         )
         print(script)
     elif args.command == COMMAND_INSTALL_COMPLETIONS:
@@ -219,15 +220,7 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
             args.shell,
             KNOWN_COMMANDS,
             KNOWN_FLAGS,
-            {
-                COMMAND_DIFF: ("--help", "-h"),
-                COMMAND_UPGRADE: ("--pre", "--help", "-h"),
-                COMMAND_COMPLETION: ("--help", "-h"),
-                COMMAND_INSTALL_COMPLETIONS: ("--shell", "--help", "-h"),
-                COMMAND_DEBUG_INFO: ("--help", "-h"),
-                COMMAND_CHECK_UPDATES: ("--help", "-h"),
-                COMMAND_DOCS: ("--help", "-h"),
-            },
+            SUBCOMMAND_FLAGS,
         )
         print(f"Installed completions for '{path.name}' at: {path}")
     else:
