@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed Zsh completions filename to be `midi-diff` instead of `_midi-diff` for consistency with other shells and to avoid confusion.
+
 ## [1.1.0] - 2026-01-29
 
 ### Added
