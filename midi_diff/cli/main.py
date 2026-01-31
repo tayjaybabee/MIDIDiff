@@ -222,7 +222,7 @@ def run_cli(argv: Sequence[str] | None = None) -> None:
             KNOWN_FLAGS,
             SUBCOMMAND_FLAGS,
         )
-        print(f"Installed completions for '{path.name}' at: {path}")
+        print(f"Installed completions for 'midi-diff' at: {path}")
     else:
         # No subcommand provided - show help
         parser.print_help()

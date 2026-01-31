@@ -23,7 +23,7 @@ from typing import Final, Iterable, Mapping
 SUPPORTED_SHELLS: Final[frozenset[str]] = frozenset({"bash", "zsh", "fish", "powershell", "cmd"})
 COMPLETION_FILENAMES: Final[dict[str, str]] = {
     "bash": "midi-diff",
-    "zsh": "_midi-diff",
+    "zsh": "midi-diff",
     "fish": "midi-diff.fish",
     "powershell": "midi-diff-completion.ps1",
     "cmd": "midi-diff-completion.cmd",
